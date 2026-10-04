@@ -1,0 +1,66 @@
+﻿title: Start
+---
+Camera: Pans across Leo's room, showcasing his posters, bookshelves, etc
+Camera: Zooms behind Leo, who is typing on his computer
+Camera: Show Leo typing to his friend via online chat
+
+Leo: You said you found something interesting?
+Max: That's right~
+Leo: Well, what is it?
+Max: You might want to check this out...
+Max: \[Click Link]
+
+Camera: Zoom into screen, fade black, and zoom out into 2027 screen
+
+Leo: W-what just happened...?
+Leo: Huh? Jaycord? Everything looks so different...
+
+???: *Knock knock!*
+
+-> Exit
+
+Camera: Shows door
+
+Leo: Who's there?
+
+Camera: Opens door, revealing a delivery box
+
+Leo: Gift from Max...? What could be inside?
+
+Camera: AI Companion Tool pops out from the box
+
+Leo: H-huh?!
+
+CrowGPT: Hey there, Leo! My name is CrowGPT, or Crow for short :)
+CrowGPT: I'm your personal AI Companion Friend, ask me anything!
+
+-> Who are you?
+    CrowGPT: I'm an LLM, built to assist you with anything - whether it would be with daily tasks, persisting questions, or if you just need someone to listen.
+    <<jump Intro1>>
+-> Why are you a crow?
+    CrowGPT: Well, that's just how I was designed. As an LLM, I can really take any form, but my developers thought this mascot would be the most unique and friendly :)
+    <<jump Intro2>>
+
+===
+
+title: Intro1
+---
+-> What is an LLM?
+    CrowGPT: An LLM, short for Large Langugae Model, is a type of artificial intelligence designed to understand, summarize, translate, and generate human-like text.
+    <<jump Intro3>>
+
+===
+
+title: Intro2
+---
+
+
+-> What is an LLM?
+    CrowGPT: An LLM, short for Large Langugae Model, is a type of artificial intelligence designed to understand, summarize, translate, and generate human-like text.
+    <<jump Intro3>>
+
+title: Intro3
+---
+
+
+===
