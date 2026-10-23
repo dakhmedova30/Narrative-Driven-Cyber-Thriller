@@ -1,12 +1,9 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Yarn.Unity;
 
-/// <summary>
-/// Figma "03 Link Card" — e.g. the transmigration link.
-/// The presenter can wait until the player presses OPEN LINK.
-/// </summary>
+/// <summary>Figma "03 Link Card" — e.g. the transmigration link.</summary>
 public class JaycordLinkCard : MonoBehaviour
 {
     [SerializeField] private TMP_Text title;
@@ -15,7 +12,8 @@ public class JaycordLinkCard : MonoBehaviour
     [SerializeField] private Button openButton;
     [SerializeField] private TMP_Text openLabel;
 
-    private YarnTaskCompletionSource opened;
+    /// <summary>Called when the player presses OPEN LINK.</summary>
+    public Action onOpened;
 
     public bool IsOpened { get; private set; }
 
@@ -24,27 +22,25 @@ public class JaycordLinkCard : MonoBehaviour
         if (openButton != null) openButton.onClick.AddListener(Open);
     }
 
-    public void Setup(string titleText, string urlText, bool unverified)
+    public void Setup(string titleText, string urlText, bool unverified, bool alreadyOpened)
     {
         title.text = titleText;
         url.text = urlText;
         if (warning != null) warning.SetActive(unverified);
+        if (alreadyOpened) ShowOpened();
     }
 
     public void Open()
     {
         if (IsOpened) return;
+        ShowOpened();
+        onOpened?.Invoke();
+    }
+
+    private void ShowOpened()
+    {
         IsOpened = true;
         if (openLabel != null) openLabel.text = "LINK OPENED";
         if (openButton != null) openButton.interactable = false;
-        opened?.TrySetResult();
-    }
-
-    /// <summary>Completes when the player presses OPEN LINK.</summary>
-    public YarnTask WaitUntilOpened()
-    {
-        if (IsOpened) return YarnTask.CompletedTask;
-        opened ??= new YarnTaskCompletionSource();
-        return opened.Task;
     }
 }

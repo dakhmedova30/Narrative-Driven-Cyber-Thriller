@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -28,7 +29,11 @@ public class JaycordApp : MonoBehaviour
 
     private readonly Dictionary<string, JaycordContactRow> rows = new Dictionary<string, JaycordContactRow>();
 
+    /// <summary>The conversation currently on screen.</summary>
     public JaycordContact Current { get; private set; }
+
+    /// <summary>Raised when the player clicks a row in the chat list.</summary>
+    public event Action<string> ContactClicked;
 
     private void Awake()
     {
@@ -47,7 +52,7 @@ public class JaycordApp : MonoBehaviour
     /// <summary>Open a conversation: highlights the row, fills the header and profile.</summary>
     public void Select(string contactName)
     {
-        var contact = Find(contactName) ?? AddContact(contactName);
+        var contact = GetOrAdd(contactName);
         Current = contact;
         contact.unread = 0;
 
@@ -64,23 +69,27 @@ public class JaycordApp : MonoBehaviour
         if (profile != null) profile.Bind(contact);
     }
 
-    public void SetStatus(string status)
+    public void SetStatus(string contactName, string status)
     {
-        if (Current == null) return;
-        Current.status = status;
+        var contact = GetOrAdd(contactName);
+        contact.status = status;
+        if (contact != Current) return;
         headerStatus.text = status.ToUpperInvariant();
         if (profile != null) profile.SetStatus(status);
     }
 
-    /// <summary>Update the chat-list preview of the open conversation.</summary>
-    public void OnMessage(string text)
+    /// <summary>Update a contact's last-message preview (and unread count if it isn't on screen).</summary>
+    public void OnMessage(string contactName, string text, bool countAsUnread)
     {
-        if (Current == null) return;
-        Current.preview = text;
-        if (rows.TryGetValue(Current.name, out var row)) row.Bind(Current);
+        var contact = GetOrAdd(contactName);
+        contact.preview = text;
+        if (countAsUnread && contact != Current) contact.unread++;
+        if (rows.TryGetValue(contact.name, out var row)) row.Bind(contact);
     }
 
     public JaycordContact Find(string contactName) => contacts.Find(c => c.name == contactName);
+
+    public JaycordContact GetOrAdd(string contactName) => Find(contactName) ?? AddContact(contactName);
 
     public static Color PresenceColor(JaycordPresence presence)
     {
@@ -116,6 +125,7 @@ public class JaycordApp : MonoBehaviour
     {
         var row = Instantiate(contactRowPrefab, contactList);
         row.Bind(contact);
+        row.onClick = () => ContactClicked?.Invoke(contact.name);
         row.SetSelected(false);
         rows[contact.name] = row;
     }

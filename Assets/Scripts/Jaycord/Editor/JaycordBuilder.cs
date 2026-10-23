@@ -274,7 +274,7 @@ public static class JaycordBuilder
     {
         var root = UI("Jaycord_ContactRow", null);
         LE(root, h: 88);
-        var background = Img(root, null, new Color(0, 0, 0, 0));
+        var background = Img(root, null, new Color(0, 0, 0, 0), raycast: true); // receives clicks / hover
         var accent = UI("SelectedAccent", root.transform);
         IgnoreLayout(accent);
         var accentRt = (RectTransform)accent.transform;
@@ -355,7 +355,7 @@ public static class JaycordBuilder
         BuildServerRail(root.transform);
         var contactList = BuildListPanel(root.transform);
         var conversation = BuildConversation(root.transform, out var headerAvatar, out var headerName, out var headerStatus,
-            out var scroll, out var content, out var typing, out var inputBar, out var inputText,
+            out var scroll, out var content, out var typing, out var inputBar, out var inputText, out var inputHint,
             out var replyPanel, out var replyOptions);
         var profile = BuildProfile(root.transform, dossierRowPrefab, tagPrefab);
 
@@ -386,6 +386,7 @@ public static class JaycordBuilder
         Set(presenter, "replyOptionPrefab", reply);
         Set(presenter, "inputBar", inputBar);
         Set(presenter, "inputText", inputText);
+        Set(presenter, "inputHint", inputHint);
         Set(presenter, "replyPanel", replyPanel);
         Set(presenter, "replyContainer", replyOptions);
 
@@ -411,13 +412,19 @@ public static class JaycordBuilder
                 },
             },
             new JaycordContact { name = "MCNPC_A", avatar = LoadAvatar("avatar_mcnpc_a.png"), presence = JaycordPresence.Online,
-                                 status = "Online", handle = "", preview = "Let’s go", unread = 3 },
+                                 status = "Online", handle = "", preview = "Let’s go", unread = 3,
+                                 history = History(("Leo", "you free tonight?"), ("MCNPC_A", "yeah"), ("MCNPC_A", "where"), ("MCNPC_A", "Let’s go")) },
             new JaycordContact { name = "MCNPC_B", avatar = LoadAvatar("avatar_mcnpc_b.png"), presence = JaycordPresence.Idle,
-                                 status = "Idle", handle = "", preview = "Trueeeeee" },
+                                 status = "Idle", handle = "", preview = "Trueeeeee",
+                                 history = History(("Leo", "this city never sleeps huh"), ("MCNPC_B", "Trueeeeee")) },
             new JaycordContact { name = "MCNPC_C", avatar = LoadAvatar("avatar_mcnpc_c.png"), presence = JaycordPresence.Offline,
-                                 status = "Offline", handle = "", preview = "lol yeah, are you coming to the lunch on the 13th?", unread = 12 },
+                                 status = "Offline", handle = "", preview = "lol yeah, are you coming to the lunch on the 13th?", unread = 12,
+                                 history = History(("MCNPC_C", "lol yeah, are you coming to the lunch on the 13th?")) },
         };
     }
+
+    private static List<JaycordRecord> History(params (string sender, string text)[] lines) =>
+        lines.Select(l => new JaycordRecord { kind = JaycordRecord.Kind.Message, sender = l.sender, text = l.text }).ToList();
 
     // ---- Server rail (72 px) -------------------------------------------
     private static void BuildServerRail(Transform parent)
@@ -527,7 +534,8 @@ public static class JaycordBuilder
     private static GameObject BuildConversation(Transform parent,
         out Image headerAvatar, out TextMeshProUGUI headerName, out TextMeshProUGUI headerStatus,
         out ScrollRect scroll, out RectTransform content, out JaycordTypingIndicator typing,
-        out GameObject inputBar, out TextMeshProUGUI inputText, out GameObject replyPanel, out RectTransform replyOptions)
+        out GameObject inputBar, out TextMeshProUGUI inputText, out TextMeshProUGUI inputHint,
+        out GameObject replyPanel, out RectTransform replyOptions)
     {
         var conv = UI("Conversation", parent);
         var rt = (RectTransform)conv.transform;
@@ -591,6 +599,7 @@ public static class JaycordBuilder
         inputText = Text(inputBar.transform, "Text", "> enter message_", monoRegular, 14, JaycordTheme.TextMuted);
         inputText.overflowMode = TextOverflowModes.Ellipsis;
         LE(inputText.gameObject, flexW: 1, minW: 0);
+        inputHint = Text(inputBar.transform, "Hint", "", monoMedium, 11, JaycordTheme.TextMuted, 1.1f, TextAlignmentOptions.Right);
         Icon(inputBar.transform, "Mic", iconMic, Color.white);
         Icon(inputBar.transform, "Smile", iconSmile, Color.white);
         Icon(inputBar.transform, "Image", iconImage, Color.white);

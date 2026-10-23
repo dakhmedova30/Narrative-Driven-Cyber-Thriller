@@ -1,5 +1,4 @@
 #nullable enable
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -12,20 +11,31 @@ using UnityEngine.InputSystem;
 #endif
 
 /// <summary>
-/// Shows Yarn dialogue as a Jaycord chat instead of a dialogue box.
+/// Shows Yarn dialogue as a Jaycord chat.
 ///
-///   Max: hello                -> "Max is typing…", then Max's bubble (left)
-///   Leo: hi                   -> typed into the input bar, then Leo's bubble (right)
-///   System: Message failed.   -> centered system message
-///   Max: look #link           -> Max's bubble + a link card (waits for OPEN LINK)
-///   -> option                 -> reply buttons; unmet <<if>> shows as LOCKED
+///   Max: hello        -> "Max is typing…", then Max's bubble (automatic)
+///   Leo: hi           -> the player "types" it: any key lights up the text, ENTER sends it
+///   -> option         -> the player picks a reply (click / 1-9), then types it the same way
+///   System: ...       -> system message
+///   Max: look #link   -> Max's bubble + a link card; the chat waits until OPEN LINK is pressed
+///
+/// Every contact has its own history. Clicking a contact in the chat list shows their history.
+/// Messages for a chat that isn't on screen are stored there and counted as unread.
 ///
 /// Add this to the DialogueRunner's "Dialogue Presenters" list.
 /// </summary>
 public class JaycordPresenter : DialoguePresenterBase
 {
+    public enum ReplyMode
+    {
+        [Tooltip("Player presses any keys to type the line, then ENTER to send.")]
+        TypeAndPressEnter,
+        [Tooltip("The line types itself and sends automatically (handy for testing the story).")]
+        Automatic,
+    }
+
     [Header("Speakers")]
-    [Tooltip("Lines from this character are shown as the player's own messages.")]
+    [Tooltip("Lines from this character are the player's own messages.")]
     [SerializeField] private string playerName = "Leo";
     [Tooltip("Lines from these characters (or with no character) are system messages.")]
     [SerializeField] private string[] systemSpeakers = { "System" };
@@ -46,12 +56,18 @@ public class JaycordPresenter : DialoguePresenterBase
     [SerializeField] private JaycordLinkCard linkCardPrefab = null!;
     [SerializeField] private JaycordReplyOption replyOptionPrefab = null!;
 
-    [Header("Bottom bar: the reply choices replace the input bar while the player chooses")]
+    [Header("Bottom bar (reply choices replace the input bar while choosing)")]
     [SerializeField] private GameObject inputBar = null!;
     [SerializeField] private TMP_Text inputText = null!;
+    [SerializeField] private TMP_Text? inputHint;
     [SerializeField] private string inputPlaceholder = "> enter message_";
     [SerializeField] private GameObject replyPanel = null!;
     [SerializeField] private RectTransform replyContainer = null!;
+
+    [Header("Player replies")]
+    [SerializeField] private ReplyMode replyMode = ReplyMode.TypeAndPressEnter;
+    [Tooltip("How many characters light up per key press.")]
+    [SerializeField, Range(1, 10)] private int charactersPerKey = 3;
 
     [Header("Link card (#link)")]
     [SerializeField] private string linkTitle = "TRANSMIGRATION LINK";
@@ -61,12 +77,13 @@ public class JaycordPresenter : DialoguePresenterBase
     public UnityEvent<string> onLinkOpened = new UnityEvent<string>();
 
     [Header("Timing (seconds)")]
-    [Tooltip("Global speed multiplier. 2 = twice as fast.")]
+    [Tooltip("Global speed multiplier for the other side. 2 = twice as fast.")]
     [SerializeField, Range(0.25f, 5f)] private float speed = 1f;
     [SerializeField] private float typingBase = 0.4f;
     [SerializeField] private float typingPerCharacter = 0.035f;
     [SerializeField] private float typingMin = 0.6f;
     [SerializeField] private float typingMax = 2.5f;
+    [Tooltip("Only used in Automatic reply mode.")]
     [SerializeField] private float playerCharactersPerSecond = 45f;
     [SerializeField] private float pauseAfterMessage = 0.35f;
 
@@ -75,157 +92,65 @@ public class JaycordPresenter : DialoguePresenterBase
     [SerializeField] private float groupGap = 27f;
 
     private readonly List<JaycordReplyOption> activeOptions = new List<JaycordReplyOption>();
+    private readonly List<JaycordRecord> scratchHistory = new List<JaycordRecord>(); // used when there is no JaycordApp
     private bool waitingForChoice;
-    private string? lastSender;
+    private string? lastSender;     // for the gap between message groups
+    private string? activeChat;     // the conversation Yarn is currently writing into
+    private string? typingSpeaker;  // who is "typing…" in the active chat right now
+    private int keysPressed;        // text-input events since last frame (TypeAndPressEnter)
 
     // ------------------------------------------------------------------
-    // Public API (used by JaycordCommands)
+    // Public API (used by JaycordCommands and the chat list)
     // ------------------------------------------------------------------
 
-    /// <summary>Switch to a conversation: sets the header and clears old messages.</summary>
+    /// <summary>Yarn: &lt;&lt;jaycord_open NAME&gt;&gt; — continue the story in this chat and show it.</summary>
     public void OpenConversation(string contactName)
     {
-        ClearMessages();
+        activeChat = contactName;
+        if (app != null) app.GetOrAdd(contactName);
+        ShowConversation(contactName);
+    }
+
+    /// <summary>Show a contact's history (chat-list click). Does not change where Yarn writes.</summary>
+    public void ShowConversation(string contactName)
+    {
         if (app != null) app.Select(contactName);
+        Rerender();
     }
 
     public void SetStatus(string status)
     {
-        if (app != null) app.SetStatus(status);
+        if (app != null && activeChat != null) app.SetStatus(activeChat, status);
     }
 
-    public void AddDivider(string label)
-    {
-        var divider = Instantiate(dividerPrefab, messageContainer);
-        divider.SetLabel(label);
-        lastSender = null;
-        KeepTypingIndicatorLast();
-    }
+    public void AddDivider(string label) => Append(new JaycordRecord { kind = JaycordRecord.Kind.Date, text = label });
 
+    /// <summary>Yarn: &lt;&lt;jaycord_clear&gt;&gt; — empty the active chat's history.</summary>
     public void ClearMessages()
     {
-        var toRemove = new List<GameObject>();
-        foreach (Transform child in messageContainer)
-        {
-            if (typingIndicator != null && child == typingIndicator.transform) continue;
-            toRemove.Add(child.gameObject);
-        }
-        foreach (var go in toRemove) Destroy(go);
-        lastSender = null;
+        ActiveHistory().Clear();
+        if (IsViewingActiveChat) Rerender();
     }
 
     // ------------------------------------------------------------------
-    // Yarn presenter
+    // Unity
     // ------------------------------------------------------------------
 
-    public override YarnTask OnDialogueStartedAsync()
+    private void OnEnable()
     {
-        replyPanel.SetActive(false);
-        inputBar.SetActive(true);
-        typingIndicator.Hide();
-        ResetInput();
-        return YarnTask.CompletedTask;
+        if (app != null) app.ContactClicked += ShowConversation;
     }
 
-    public override YarnTask OnDialogueCompleteAsync()
+    private void OnDisable()
     {
-        replyPanel.SetActive(false);
-        inputBar.SetActive(true);
-        typingIndicator.Hide();
-        waitingForChoice = false;
-        return YarnTask.CompletedTask;
+        if (app != null) app.ContactClicked -= ShowConversation;
     }
 
-    public override async YarnTask RunLineAsync(LocalizedLine line, LineCancellationToken token)
+    private void Start()
     {
-        string speaker = line.CharacterName ?? "";
-        string text = line.TextWithoutCharacterName.Text.Trim();
-
-        if (text.Length > 0)
-        {
-            if (speaker.Length == 0 || systemSpeakers.Contains(speaker))
-            {
-                await AddMessage(systemMessagePrefab, text, "System");
-            }
-            else if (speaker == playerName)
-            {
-                await TypeIntoInputBar(text);
-                await AddMessage(selfMessagePrefab, text, playerName);
-            }
-            else
-            {
-                bool stick = IsAtBottom();
-                StartGroup(speaker);
-                typingIndicator.Show(speaker);
-                if (stick) await ScrollToBottom();
-                await Wait(Mathf.Clamp(typingBase + text.Length * typingPerCharacter, typingMin, typingMax));
-                typingIndicator.Hide();
-                await AddMessage(otherMessagePrefab, text, speaker);
-            }
-        }
-
-        if (HasTag(line, "link"))
-        {
-            var card = Instantiate(linkCardPrefab, messageContainer);
-            card.Setup(linkTitle, linkUrl, unverified: true);
-            await ScrollToBottom();
-            if (linkWaitsForClick)
-            {
-                await card.WaitUntilOpened();
-                onLinkOpened.Invoke(linkUrl);
-            }
-        }
-
-        await Wait(pauseAfterMessage);
+        if (app != null && app.Current != null) Rerender();
+        ResetInputBar();
     }
-
-    public override async YarnTask<DialogueOption?> RunOptionsAsync(DialogueOption[] options, LineCancellationToken token)
-    {
-        if (!options.Any(o => o.IsAvailable)) return null;
-
-        ClearOptions();
-        var chosen = new YarnTaskCompletionSource<DialogueOption?>();
-
-        for (int i = 0; i < options.Length; i++)
-        {
-            DialogueOption option = options[i];
-            var view = Instantiate(replyOptionPrefab, replyContainer);
-            view.Setup(i + 1, option.Line.TextWithoutCharacterName.Text.Trim(), option.IsAvailable,
-                       () => chosen.TrySetResult(option));
-            activeOptions.Add(view);
-        }
-
-        // If the dialogue gets stopped while we wait, give up cleanly.
-        using (token.NextContentToken.Register(() => chosen.TrySetResult(null)))
-        {
-            inputBar.SetActive(false);
-            replyPanel.SetActive(true);
-            waitingForChoice = true;
-            await ScrollToBottom();
-
-            DialogueOption? result = await chosen.Task;
-            waitingForChoice = false;
-
-            foreach (var view in activeOptions) view.Lock();
-            await Wait(0.25f); // let the "Selected" state be seen
-            replyPanel.SetActive(false);
-            inputBar.SetActive(true);
-            ClearOptions();
-
-            if (result != null)
-            {
-                string text = result.Line.TextWithoutCharacterName.Text.Trim();
-                await TypeIntoInputBar(text);
-                await AddMessage(selfMessagePrefab, text, playerName);
-                await Wait(pauseAfterMessage);
-            }
-            return result;
-        }
-    }
-
-    // ------------------------------------------------------------------
-    // Helpers
-    // ------------------------------------------------------------------
 
     private void Update()
     {
@@ -244,15 +169,313 @@ public class JaycordPresenter : DialoguePresenterBase
 #endif
     }
 
-    private async YarnTask AddMessage(JaycordMessageView prefab, string text, string sender)
+    // ------------------------------------------------------------------
+    // Yarn presenter
+    // ------------------------------------------------------------------
+
+    public override YarnTask OnDialogueStartedAsync()
     {
-        bool stick = IsAtBottom();
-        StartGroup(sender);
-        var view = Instantiate(prefab, messageContainer);
-        view.SetText(text);
+        replyPanel.SetActive(false);
+        inputBar.SetActive(true);
+        typingIndicator.Hide();
+        ResetInputBar();
+        return YarnTask.CompletedTask;
+    }
+
+    public override YarnTask OnDialogueCompleteAsync()
+    {
+        replyPanel.SetActive(false);
+        inputBar.SetActive(true);
+        typingIndicator.Hide();
+        typingSpeaker = null;
+        waitingForChoice = false;
+        ResetInputBar();
+        return YarnTask.CompletedTask;
+    }
+
+    public override async YarnTask RunLineAsync(LocalizedLine line, LineCancellationToken token)
+    {
+        if (activeChat == null && app != null && app.Current != null) activeChat = app.Current.name;
+
+        string speaker = line.CharacterName ?? "";
+        string text = line.TextWithoutCharacterName.Text.Trim();
+
+        if (text.Length > 0)
+        {
+            if (speaker.Length == 0 || systemSpeakers.Contains(speaker))
+            {
+                Append(Message("System", text));
+            }
+            else if (speaker == playerName)
+            {
+                await PlayerSends(text);
+                Append(Message(playerName, text));
+            }
+            else
+            {
+                // The other side types for a while, then the message arrives (even if you're in another chat).
+                typingSpeaker = speaker;
+                if (IsViewingActiveChat) ShowTypingIndicator();
+                await Wait(Mathf.Clamp(typingBase + text.Length * typingPerCharacter, typingMin, typingMax));
+                typingSpeaker = null;
+                typingIndicator.Hide();
+                Append(Message(speaker, text));
+            }
+        }
+
+        if (HasTag(line, "link"))
+        {
+            var record = new JaycordRecord { kind = JaycordRecord.Kind.Link, sender = speaker };
+            Append(record);
+            if (linkWaitsForClick)
+            {
+                while (!record.linkOpened) await YarnTask.Yield();
+                onLinkOpened.Invoke(linkUrl);
+            }
+        }
+
+        await Wait(pauseAfterMessage);
+    }
+
+    public override async YarnTask<DialogueOption?> RunOptionsAsync(DialogueOption[] options, LineCancellationToken token)
+    {
+        if (!options.Any(o => o.IsAvailable)) return null;
+        if (activeChat == null && app != null && app.Current != null) activeChat = app.Current.name;
+
+        ClearOptions();
+        DialogueOption? result = null;
+        bool done = false;
+
+        for (int i = 0; i < options.Length; i++)
+        {
+            DialogueOption option = options[i];
+            var view = Instantiate(replyOptionPrefab, replyContainer);
+            view.Setup(i + 1, option.Line.TextWithoutCharacterName.Text.Trim(), option.IsAvailable, () =>
+            {
+                if (done) return;
+                result = option;
+                done = true;
+            });
+            activeOptions.Add(view);
+        }
+
+        // If the dialogue gets stopped while we wait, give up cleanly.
+        using (token.NextContentToken.Register(() => done = true))
+        {
+            bool wasViewing = false;
+            while (!done)
+            {
+                // The choices only show while the player is looking at this chat.
+                bool viewing = IsViewingActiveChat;
+                replyPanel.SetActive(viewing);
+                inputBar.SetActive(!viewing);
+                waitingForChoice = viewing;
+                if (viewing && !wasViewing) await ScrollToBottom();
+                wasViewing = viewing;
+                await YarnTask.Yield();
+            }
+        }
+
+        waitingForChoice = false;
+        foreach (var view in activeOptions) view.Lock();
+        await Wait(0.25f); // let the "Selected" state be seen
+        replyPanel.SetActive(false);
+        inputBar.SetActive(true);
+        ClearOptions();
+
+        if (result != null)
+        {
+            string text = result.Line.TextWithoutCharacterName.Text.Trim();
+            await PlayerSends(text);
+            Append(Message(playerName, text));
+            await Wait(pauseAfterMessage);
+        }
+        return result;
+    }
+
+    // ------------------------------------------------------------------
+    // Player typing
+    // ------------------------------------------------------------------
+
+    /// <summary>Waits until the player has "typed" the line into the input bar and sent it.</summary>
+    private async YarnTask PlayerSends(string text)
+    {
+#if ENABLE_INPUT_SYSTEM
+        var keyboard = Keyboard.current;
+        if (replyMode == ReplyMode.TypeAndPressEnter && keyboard != null)
+        {
+            int revealed = 0;
+            keysPressed = 0;
+            keyboard.onTextInput += OnTextInput;
+            try
+            {
+                while (true)
+                {
+                    if (!IsViewingActiveChat)
+                    {
+                        // Player is reading another chat: keep the draft, ignore keys.
+                        ResetInputBar();
+                        keysPressed = 0;
+                        await YarnTask.Yield();
+                        continue;
+                    }
+
+                    if (keysPressed > 0)
+                    {
+                        revealed = Mathf.Min(text.Length, revealed + keysPressed * charactersPerKey);
+                        keysPressed = 0;
+                    }
+                    if (keyboard.backspaceKey.wasPressedThisFrame)
+                        revealed = Mathf.Max(0, revealed - charactersPerKey);
+
+                    bool complete = revealed >= text.Length;
+                    ShowDraft(text, revealed, complete);
+
+                    bool enter = keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame;
+                    if (complete && enter) break;
+
+                    await YarnTask.Yield();
+                }
+            }
+            finally
+            {
+                keyboard.onTextInput -= OnTextInput;
+            }
+            ResetInputBar();
+            return;
+        }
+#endif
+        // Automatic: the line types itself.
+        while (!IsViewingActiveChat) await YarnTask.Yield();
+        int msPerChar = Mathf.Max(1, Mathf.RoundToInt(1000f / Mathf.Max(1f, playerCharactersPerSecond * speed)));
+        for (int i = 1; i <= text.Length; i++)
+        {
+            ShowDraft(text, i, false);
+            await YarnTask.Delay(msPerChar);
+        }
+        await Wait(0.2f);
+        ResetInputBar();
+    }
+
+    private void OnTextInput(char c)
+    {
+        if (!char.IsControl(c)) keysPressed++;
+    }
+
+    /// <summary>Typed part bright, the rest dim. Shows the ENTER hint when complete.</summary>
+    private void ShowDraft(string text, int revealed, bool complete)
+    {
+        string typed = text.Substring(0, revealed);
+        string rest = text.Substring(revealed);
+        string bright = ColorUtility.ToHtmlStringRGB(JaycordTheme.TextPrimary);
+        string dim = ColorUtility.ToHtmlStringRGB(JaycordTheme.TextMuted);
+        inputText.color = Color.white;
+        inputText.text = $"<color=#{dim}>> </color><color=#{bright}><noparse>{typed}</noparse></color>" +
+                         $"<color=#{dim}80><noparse>{rest}</noparse></color>";
+        if (inputHint != null)
+        {
+            inputHint.text = complete ? "ENTER ↵" : "TYPE";
+            inputHint.color = complete ? JaycordTheme.Cyan : JaycordTheme.TextMuted;
+        }
+    }
+
+    private void ResetInputBar()
+    {
+        inputText.text = inputPlaceholder;
+        inputText.color = JaycordTheme.TextMuted;
+        if (inputHint != null) inputHint.text = "";
+    }
+
+    // ------------------------------------------------------------------
+    // History & rendering
+    // ------------------------------------------------------------------
+
+    private bool IsViewingActiveChat =>
+        app == null || activeChat == null || (app.Current != null && app.Current.name == activeChat);
+
+    private List<JaycordRecord> ActiveHistory()
+    {
+        if (app == null || activeChat == null) return scratchHistory;
+        return app.GetOrAdd(activeChat).history;
+    }
+
+    private List<JaycordRecord> ViewedHistory()
+    {
+        if (app == null || app.Current == null) return scratchHistory;
+        return app.Current.history;
+    }
+
+    private static JaycordRecord Message(string sender, string text) =>
+        new JaycordRecord { kind = JaycordRecord.Kind.Message, sender = sender, text = text };
+
+    /// <summary>Adds a record to the active chat; draws it if that chat is on screen, otherwise counts it unread.</summary>
+    private void Append(JaycordRecord record)
+    {
+        ActiveHistory().Add(record);
+        bool viewing = IsViewingActiveChat;
+
+        if (viewing)
+        {
+            bool stick = IsAtBottom();
+            Render(record);
+            if (stick) ScrollToBottom().Forget();
+        }
+
+        if (record.kind == JaycordRecord.Kind.Message && app != null && activeChat != null)
+            app.OnMessage(activeChat, record.text, countAsUnread: !viewing);
+    }
+
+    /// <summary>Redraws the chat that is on screen from its history.</summary>
+    private void Rerender()
+    {
+        foreach (Transform child in messageContainer.Cast<Transform>().ToList())
+        {
+            if (child == typingIndicator.transform) continue;
+            Destroy(child.gameObject);
+        }
+        lastSender = null;
+        typingIndicator.Hide();
+
+        foreach (var record in ViewedHistory()) Render(record);
+
+        if (typingSpeaker != null && IsViewingActiveChat) ShowTypingIndicator();
+        ScrollToBottom().Forget();
+    }
+
+    private void Render(JaycordRecord record)
+    {
+        switch (record.kind)
+        {
+            case JaycordRecord.Kind.Date:
+                Instantiate(dividerPrefab, messageContainer).SetLabel(record.text);
+                lastSender = null;
+                break;
+
+            case JaycordRecord.Kind.Link:
+                StartGroup(record.sender);
+                var card = Instantiate(linkCardPrefab, messageContainer);
+                card.Setup(linkTitle, linkUrl, unverified: true, alreadyOpened: record.linkOpened);
+                card.onOpened = () => record.linkOpened = true;
+                break;
+
+            default:
+                bool isSystem = record.sender.Length == 0 || systemSpeakers.Contains(record.sender);
+                bool isSelf = record.sender == playerName;
+                StartGroup(isSystem ? "System" : record.sender);
+                var prefab = isSystem ? systemMessagePrefab : isSelf ? selfMessagePrefab : otherMessagePrefab;
+                Instantiate(prefab, messageContainer).SetText(record.text);
+                break;
+        }
         KeepTypingIndicatorLast();
-        if (app != null) app.OnMessage(text);
-        if (stick) await ScrollToBottom();
+    }
+
+    private void ShowTypingIndicator()
+    {
+        if (typingSpeaker == null) return;
+        bool stick = IsAtBottom();
+        StartGroup(typingSpeaker);
+        typingIndicator.Show(typingSpeaker);
+        if (stick) ScrollToBottom().Forget();
     }
 
     /// <summary>Adds the bigger gap when a different person starts talking.</summary>
@@ -263,28 +486,9 @@ public class JaycordPresenter : DialoguePresenterBase
             var spacer = new GameObject("GroupGap", typeof(RectTransform), typeof(LayoutElement));
             spacer.transform.SetParent(messageContainer, false);
             spacer.GetComponent<LayoutElement>().preferredHeight = groupGap;
-            KeepTypingIndicatorLast();
         }
         lastSender = sender;
-    }
-
-    private async YarnTask TypeIntoInputBar(string text)
-    {
-        inputText.color = JaycordTheme.TextPrimary;
-        int msPerChar = Mathf.Max(1, Mathf.RoundToInt(1000f / Mathf.Max(1f, playerCharactersPerSecond * speed)));
-        for (int i = 1; i <= text.Length; i++)
-        {
-            inputText.text = "> " + text.Substring(0, i) + "_";
-            await YarnTask.Delay(msPerChar);
-        }
-        await Wait(0.2f);
-        ResetInput();
-    }
-
-    private void ResetInput()
-    {
-        inputText.text = inputPlaceholder;
-        inputText.color = JaycordTheme.TextMuted;
+        KeepTypingIndicatorLast();
     }
 
     private void ClearOptions()
@@ -311,7 +515,8 @@ public class JaycordPresenter : DialoguePresenterBase
 
     private async YarnTask ScrollToBottom()
     {
-        await YarnTask.Yield(); // wait one frame so the layout includes the new message
+        await YarnTask.Yield(); // wait one frame so the layout includes the new content
+        if (scrollRect == null) return;
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(messageContainer);
         scrollRect.verticalNormalizedPosition = 0f;
@@ -326,6 +531,6 @@ public class JaycordPresenter : DialoguePresenterBase
     private static bool HasTag(LocalizedLine line, string tag)
     {
         if (line.Metadata == null) return false;
-        return line.Metadata.Any(m => m.TrimStart('#').Equals(tag, StringComparison.OrdinalIgnoreCase));
+        return line.Metadata.Any(m => m.TrimStart('#').Equals(tag, System.StringComparison.OrdinalIgnoreCase));
     }
 }

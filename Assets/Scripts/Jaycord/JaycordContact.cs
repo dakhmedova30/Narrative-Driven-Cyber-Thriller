@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum JaycordPresence { Online, Idle, Offline }
@@ -10,6 +11,19 @@ public class JaycordDossierField
     public string value = "A";
     [Tooltip("Show the value in yellow (e.g. STATUS: Unverified).")]
     public bool highlight;
+}
+
+/// <summary>One entry in a conversation's history.</summary>
+[Serializable]
+public class JaycordRecord
+{
+    public enum Kind { Message, Date, Link }
+
+    public Kind kind = Kind.Message;
+    [Tooltip("Who sent it. The player's name (e.g. Leo) = your own message, 'System' = system line.")]
+    public string sender = "";
+    [TextArea] public string text = "";
+    [HideInInspector] public bool linkOpened;
 }
 
 /// <summary>
@@ -35,4 +49,8 @@ public class JaycordContact
     public JaycordDossierField[] dossier = new JaycordDossierField[0];
     [Range(0, 100)] public int trust = 50;
     public string[] tags = new string[0];
+
+    [Header("Chat history")]
+    [Tooltip("Messages already in this chat when the game starts. New messages from Yarn are added at runtime.")]
+    public List<JaycordRecord> history = new List<JaycordRecord>();
 }
