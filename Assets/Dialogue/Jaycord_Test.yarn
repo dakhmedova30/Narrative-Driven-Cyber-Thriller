@@ -1,0 +1,46 @@
+// ============================================================
+// Jaycord test conversation
+// ------------------------------------------------------------
+// Played by Assets/Scenes/JaycordTest.unity (start node: Jaycord_Test).
+// Shows every feature of the Jaycord presenter:
+//   Max: ...        -> "Max is typing…" then Max's bubble (left)
+//   Leo: ...        -> typed into the input bar, then Leo's bubble (right)
+//   System: ...     -> system message
+//   ... #link       -> link card, chat waits until OPEN LINK is pressed
+//   -> option       -> reply options (press 1/2/3 or click)
+//   <<if ...>>      -> option shown as LOCKED when the condition is false
+//
+// Jaycord commands:
+//   <<jaycord_open NAME>>   <<jaycord_status "TEXT">>
+//   <<jaycord_divider "TEXT">>   <<jaycord_clear>>
+// ============================================================
+
+title: Jaycord_Test
+tags: Jaycord
+---
+<<declare $netrunnerLevel = 1>>
+
+<<jaycord_open Max>>
+<<jaycord_status "Last online: 8 years ago">>
+<<jaycord_divider "Nov 30, 2019 · 11:42 PM">>
+
+Max: yo, you still up?
+Leo: Yeah, why?
+Max: found something interesting
+Leo: You said that last time and it was a cat video.
+Max: this is different. trust me
+
+-> What is it?
+    Max: you'll see :)
+-> Is this a virus?
+    Max: lol no. would i do that to you
+-> Trace where he's sending this from (Netrunner Lv.3) <<if $netrunnerLevel >= 3>>
+    Max: ...how did you do that
+
+Max: just open it. don't overthink it #link
+
+<<jaycord_divider "Today · 2027">>
+<<jaycord_status "Offline">>
+Leo: Max? Are you there?
+System: Message not delivered.
+===
