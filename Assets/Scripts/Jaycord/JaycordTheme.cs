@@ -19,6 +19,16 @@ public static class JaycordTheme
     public static readonly Color Online       = Hex("#39FF88"); // status/online
     public static readonly Color Offline      = Hex("#4A4C6A"); // status/offline
 
+    // ---- Updated layout (Figma "Chat – Cyberpunk", Oct 29) ----
+    public static readonly Color BgRail         = Hex("#1B1F29"); // server rail
+    public static readonly Color BgSide         = Hex("#222733"); // chat list + profile panel
+    public static readonly Color BgConversation = Hex("#191C24"); // message area
+    public static readonly Color BgHeader       = Hex("#12131E"); // chat header
+    public static readonly Color Orange         = Hex("#E58D78"); // JAYCORD title
+    public static readonly Color BubbleSelf     = Hex("#E6E8EF"); // player's bubbles
+    public static readonly Color BubbleOther    = Hex("#A3ABBD"); // NPC bubbles + input bar
+    public static readonly Color InkDark        = Hex("#191C24"); // text/icons on the light surfaces
+
     public static Color WithAlpha(Color c, float alpha)
     {
         c.a = alpha;

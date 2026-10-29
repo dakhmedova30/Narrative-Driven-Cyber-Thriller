@@ -108,11 +108,11 @@ public static class JaycordBuilder
         {
             case Kind.Self: // cyan, sharp top-right corner, cyan glow
                 Glow(bubble, JaycordTheme.WithAlpha(JaycordTheme.Cyan, 0.35f));
-                Fill(bubble, Rounded(12, 2, 12, 12), JaycordTheme.Cyan);
+                Fill(bubble, Rounded(12, 2, 12, 12), JaycordTheme.BubbleSelf);
                 padX = 16; padY = 12;
                 break;
             case Kind.Other: // dark, magenta border, sharp top-left corner
-                Img(bubble, Rounded(2, 12, 12, 12), JaycordTheme.BgElevated);
+                Img(bubble, Rounded(2, 12, 12, 12), JaycordTheme.BubbleOther);
                 Border(bubble, Rounded(2, 12, 12, 12, 1f), JaycordTheme.Magenta);
                 padX = 16; padY = 12;
                 break;
@@ -130,7 +130,7 @@ public static class JaycordBuilder
         if (kind == Kind.Self)
             text = Text(bubble.transform, "Text", "Message", chakraSemiBold, 16, JaycordTheme.TextOnAccent, wrap: true);
         else if (kind == Kind.Other)
-            text = Text(bubble.transform, "Text", "Message", chakraMedium, 16, JaycordTheme.TextPrimary, wrap: true);
+            text = Text(bubble.transform, "Text", "Message", chakraMedium, 16, JaycordTheme.InkDark, wrap: true);
         else
             text = Text(bubble.transform, "Text", "Message", monoRegular, 12, JaycordTheme.Cyan, 0.96f,
                         TextAlignmentOptions.Center, wrap: true, upper: true);
@@ -249,7 +249,7 @@ public static class JaycordBuilder
 
         var bubble = UI("Bubble", root.transform);
         LE(bubble, w: 70, h: 38);
-        Img(bubble, Rounded(2, 12, 12, 12), JaycordTheme.BgElevated);
+        Img(bubble, Rounded(2, 12, 12, 12), JaycordTheme.BubbleOther);
         Border(bubble, Rounded(2, 12, 12, 12, 1f), JaycordTheme.Magenta);
         H(bubble, 0, 0, 0, 0, 6, TextAnchor.MiddleCenter);
 
@@ -265,6 +265,8 @@ public static class JaycordBuilder
 
         var indicator = root.AddComponent<JaycordTypingIndicator>();
         SetArray(indicator, "dots", dots);
+        SetColor(indicator, "activeDot", JaycordTheme.InkDark);
+        SetColor(indicator, "idleDot", JaycordTheme.WithAlpha(JaycordTheme.InkDark, 0.3f));
         Set(indicator, "label", label);
         root.SetActive(false);
         return indicator;
@@ -350,7 +352,7 @@ public static class JaycordBuilder
     {
         var root = UI("JaycordApp", null);
         ((RectTransform)root.transform).sizeDelta = new Vector2(1512, 960);
-        Img(root, null, JaycordTheme.BgBase, raycast: true);
+        Img(root, null, JaycordTheme.BgConversation, raycast: true);
 
         BuildServerRail(root.transform);
         var contactList = BuildListPanel(root.transform);
@@ -387,6 +389,12 @@ public static class JaycordBuilder
         Set(presenter, "inputBar", inputBar);
         Set(presenter, "inputText", inputText);
         Set(presenter, "inputHint", inputHint);
+        SetString(presenter, "inputPlaceholder", "");
+        SetColor(presenter, "placeholderColor", JaycordTheme.WithAlpha(JaycordTheme.InkDark, 0.55f));
+        SetColor(presenter, "draftTypedColor", JaycordTheme.InkDark);
+        SetColor(presenter, "draftPendingColor", JaycordTheme.WithAlpha(JaycordTheme.InkDark, 0.35f));
+        SetColor(presenter, "hintColor", JaycordTheme.WithAlpha(JaycordTheme.InkDark, 0.55f));
+        SetColor(presenter, "hintReadyColor", JaycordTheme.InkDark);
         Set(presenter, "replyPanel", replyPanel);
         Set(presenter, "replyContainer", replyOptions);
 
@@ -436,7 +444,7 @@ public static class JaycordBuilder
         rt.pivot = new Vector2(0, 0.5f);
         rt.sizeDelta = new Vector2(72, 0);
         rt.anchoredPosition = Vector2.zero;
-        Img(rail, null, JaycordTheme.BgBase);
+        Img(rail, null, JaycordTheme.BgRail);
         RightLine(rail, JaycordTheme.Border);
         V(rail, 12, 12, 20, 20, 12, TextAnchor.UpperCenter, expandWidth: false);
 
@@ -504,10 +512,10 @@ public static class JaycordBuilder
         rt.pivot = new Vector2(0, 0.5f);
         rt.sizeDelta = new Vector2(400, 0);
         rt.anchoredPosition = new Vector2(72, 0);
-        Img(panel, null, JaycordTheme.BgPanel);
+        Img(panel, null, JaycordTheme.BgSide);
         RightLine(panel, JaycordTheme.Border);
 
-        var title = Text(panel.transform, "Title", "JAYCORD", orbitron, 22, JaycordTheme.Cyan, 2.2f);
+        var title = Text(panel.transform, "Title", "JAYCORD", orbitron, 22, JaycordTheme.Orange, 2.2f);
         if (orbitronGlow != null) title.fontSharedMaterial = orbitronGlow;
         TopLeft((RectTransform)title.transform, 24, 23, 340, 33);
 
@@ -543,13 +551,13 @@ public static class JaycordBuilder
         rt.anchorMax = Vector2.one;
         rt.offsetMin = new Vector2(472, 0);
         rt.offsetMax = new Vector2(-256, 0);
-        Img(conv, null, JaycordTheme.BgBase);
+        Img(conv, null, JaycordTheme.BgConversation);
         V(conv, 0, 0, 0, 0, 0);
 
         // Header (80 px)
         var header = UI("Header", conv.transform);
         LE(header, h: 80);
-        Img(header, null, JaycordTheme.BgPanel);
+        Img(header, null, JaycordTheme.BgHeader);
         BottomLine(header, JaycordTheme.Border);
         H(header, 24, 24, 16, 16, 16, TextAnchor.MiddleLeft);
         Avatar(header.transform, 48, 10, 1.5f, out headerAvatar);
@@ -593,16 +601,16 @@ public static class JaycordBuilder
         inputBar = UI("InputBar", bottom.transform);
         LE(inputBar, h: 40);
         Glow(inputBar, JaycordTheme.WithAlpha(JaycordTheme.Cyan, 0.15f));
-        Fill(inputBar, Rounded(4, 4, 4, 4), JaycordTheme.BgElevated);
+        Fill(inputBar, Rounded(4, 4, 4, 4), JaycordTheme.BubbleOther);
         Border(inputBar, Rounded(4, 4, 4, 4, 1f), JaycordTheme.Cyan);
         H(inputBar, 16, 16, 8, 8, 16, TextAnchor.MiddleLeft);
-        inputText = Text(inputBar.transform, "Text", "> enter message_", monoRegular, 14, JaycordTheme.TextMuted);
+        Icon(inputBar.transform, "Mic", iconMic, JaycordTheme.InkDark);
+        Icon(inputBar.transform, "Smile", iconSmile, JaycordTheme.InkDark);
+        Icon(inputBar.transform, "Image", iconImage, JaycordTheme.InkDark);
+        inputText = Text(inputBar.transform, "Text", "", monoRegular, 14, JaycordTheme.InkDark);
         inputText.overflowMode = TextOverflowModes.Ellipsis;
         LE(inputText.gameObject, flexW: 1, minW: 0);
-        inputHint = Text(inputBar.transform, "Hint", "", monoMedium, 11, JaycordTheme.TextMuted, 1.1f, TextAlignmentOptions.Right);
-        Icon(inputBar.transform, "Mic", iconMic, Color.white);
-        Icon(inputBar.transform, "Smile", iconSmile, Color.white);
-        Icon(inputBar.transform, "Image", iconImage, Color.white);
+        inputHint = Text(inputBar.transform, "Hint", "", monoMedium, 11, JaycordTheme.InkDark, 1.1f, TextAlignmentOptions.Right);
 
         replyPanel = UI("ReplyChoices", bottom.transform);
         Img(replyPanel, Rounded(4, 4, 4, 4), JaycordTheme.BgPanel);
@@ -630,7 +638,7 @@ public static class JaycordBuilder
         rt.pivot = new Vector2(1, 0.5f);
         rt.sizeDelta = new Vector2(256, 0);
         rt.anchoredPosition = Vector2.zero;
-        Img(panel, null, JaycordTheme.BgPanel);
+        Img(panel, null, JaycordTheme.BgSide);
         LeftLine(panel, JaycordTheme.Border);
         V(panel, 8, 8, 24, 16, 0, TextAnchor.UpperCenter);
 
@@ -752,7 +760,7 @@ public static class JaycordBuilder
         canvasGo.AddComponent<GraphicRaycaster>();
 
         var background = UI("Background", canvasGo.transform);
-        Img(background, null, JaycordTheme.BgBase);
+        Img(background, null, JaycordTheme.BgHeader);
         Stretch((RectTransform)background.transform);
 
         var appGo = (GameObject)PrefabUtility.InstantiatePrefab(appPrefab, canvasGo.transform);
@@ -1258,6 +1266,20 @@ public static class JaycordBuilder
     {
         var so = new SerializedObject(target);
         so.FindProperty(field).floatValue = value;
+        so.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void SetColor(Object target, string field, Color value)
+    {
+        var so = new SerializedObject(target);
+        so.FindProperty(field).colorValue = value;
+        so.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void SetString(Object target, string field, string value)
+    {
+        var so = new SerializedObject(target);
+        so.FindProperty(field).stringValue = value;
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 

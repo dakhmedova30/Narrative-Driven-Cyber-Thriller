@@ -23,6 +23,9 @@ public class JaycordRecord
     [Tooltip("Who sent it. The player's name (e.g. Leo) = your own message, 'System' = system line.")]
     public string sender = "";
     [TextArea] public string text = "";
+    [Tooltip("Link cards only: title (e.g. STOP THEM) and address shown on the card.")]
+    public string title = "";
+    public string url = "";
     [HideInInspector] public bool linkOpened;
 }
 

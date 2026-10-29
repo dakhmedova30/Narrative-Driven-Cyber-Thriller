@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -88,6 +89,84 @@ public class JaycordApp : MonoBehaviour
     }
 
     public JaycordContact Find(string contactName) => contacts.Find(c => c.name == contactName);
+
+    // ------------------------------------------------------------------
+    // Runtime edits of the profile card (used by Yarn commands, see JaycordCommands)
+    // ------------------------------------------------------------------
+
+    public void SetTrust(string contactName, int trust)
+    {
+        var contact = GetOrAdd(contactName);
+        contact.trust = Mathf.Clamp(trust, 0, 100);
+        Refresh(contact);
+    }
+
+    public void AddTrust(string contactName, int delta) => SetTrust(contactName, GetOrAdd(contactName).trust + delta);
+
+    /// <summary>Changes one dossier line (adds it if there is no line with that label).</summary>
+    public void SetDossier(string contactName, string label, string value)
+    {
+        var contact = GetOrAdd(contactName);
+        var fields = new List<JaycordDossierField>(contact.dossier ?? new JaycordDossierField[0]);
+        var field = fields.Find(f => string.Equals(f.label, label, StringComparison.OrdinalIgnoreCase));
+        if (field == null)
+        {
+            field = new JaycordDossierField { label = label.ToUpperInvariant() };
+            fields.Add(field);
+        }
+        field.value = value;
+        contact.dossier = fields.ToArray();
+        Refresh(contact);
+    }
+
+    public void AddTag(string contactName, string tag)
+    {
+        var contact = GetOrAdd(contactName);
+        tag = tag.TrimStart('#');
+        var tags = (contact.tags ?? new string[0]).ToList();
+        if (!tags.Any(t => string.Equals(t.TrimStart('#'), tag, StringComparison.OrdinalIgnoreCase))) tags.Add(tag);
+        contact.tags = tags.ToArray();
+        Refresh(contact);
+    }
+
+    public void RemoveTag(string contactName, string tag)
+    {
+        var contact = GetOrAdd(contactName);
+        tag = tag.TrimStart('#');
+        contact.tags = (contact.tags ?? new string[0])
+            .Where(t => !string.Equals(t.TrimStart('#'), tag, StringComparison.OrdinalIgnoreCase)).ToArray();
+        Refresh(contact);
+    }
+
+    public void SetLevel(string contactName, string level)
+    {
+        var contact = GetOrAdd(contactName);
+        contact.level = level;
+        Refresh(contact);
+    }
+
+    public void SetHandle(string contactName, string handle)
+    {
+        var contact = GetOrAdd(contactName);
+        contact.handle = handle;
+        Refresh(contact);
+    }
+
+    /// <summary>presence: online / idle / offline</summary>
+    public void SetPresence(string contactName, string presence)
+    {
+        var contact = GetOrAdd(contactName);
+        if (Enum.TryParse(presence, true, out JaycordPresence parsed)) contact.presence = parsed;
+        else Debug.LogWarning($"[Jaycord] Unknown presence '{presence}'. Use online, idle or offline.");
+        Refresh(contact);
+    }
+
+    /// <summary>Redraws everything that shows this contact (list row, and profile if it is on screen).</summary>
+    private void Refresh(JaycordContact contact)
+    {
+        if (rows.TryGetValue(contact.name, out var row)) row.Bind(contact);
+        if (contact == Current && profile != null) profile.Bind(contact);
+    }
 
     public JaycordContact GetOrAdd(string contactName) => Find(contactName) ?? AddContact(contactName);
 

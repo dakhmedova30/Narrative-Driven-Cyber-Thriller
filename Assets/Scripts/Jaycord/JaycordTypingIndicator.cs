@@ -10,6 +10,8 @@ public class JaycordTypingIndicator : MonoBehaviour
     [SerializeField] private Image[] dots;
     [SerializeField] private TMP_Text label;
     [SerializeField] private float frameTime = 0.3f;
+    [SerializeField] private Color activeDot = new Color(0f, 0.94f, 1f);
+    [SerializeField] private Color idleDot = new Color(0.29f, 0.3f, 0.42f);
 
     private int frame;
     private float timer;
@@ -40,7 +42,7 @@ public class JaycordTypingIndicator : MonoBehaviour
         for (int i = 0; i < dots.Length; i++)
         {
             if (dots[i] != null)
-                dots[i].color = i == frame ? JaycordTheme.Cyan : JaycordTheme.Offline;
+                dots[i].color = i == frame ? activeDot : idleDot;
         }
     }
 }

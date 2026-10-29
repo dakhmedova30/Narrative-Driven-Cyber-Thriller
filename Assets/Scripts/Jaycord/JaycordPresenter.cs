@@ -17,7 +17,11 @@ using UnityEngine.InputSystem;
 ///   Leo: hi           -> the player "types" it: any key lights up the text, ENTER sends it
 ///   -> option         -> the player picks a reply (click / 1-9), then types it the same way
 ///   System: ...       -> system message
-///   Max: look #link   -> Max's bubble + a link card; the chat waits until OPEN LINK is pressed
+///   Max: look #link   -> Max's bubble + a link card with the default title; waits for OPEN LINK
+///   <<jaycord_link "STOP THEM" "jx://transmigrate/0x7F3A">>
+///                     -> link card with your own title/address; the story waits until the player
+///                        presses OPEN LINK (or ENTER), then continues with the next line
+///                        (e.g. <<jump TransmigrationCutscene>>) and fires "On Link Opened".
 ///
 /// Every contact has its own history. Clicking a contact in the chat list shows their history.
 /// Messages for a chat that isn't on screen are stored there and counted as unread.
@@ -42,6 +46,7 @@ public class JaycordPresenter : DialoguePresenterBase
 
     [Header("App shell (chat list, header, profile)")]
     [SerializeField] private JaycordApp? app;
+    public JaycordApp? App => app;
 
     [Header("Message list")]
     [SerializeField] private ScrollRect scrollRect = null!;
@@ -61,6 +66,15 @@ public class JaycordPresenter : DialoguePresenterBase
     [SerializeField] private TMP_Text inputText = null!;
     [SerializeField] private TMP_Text? inputHint;
     [SerializeField] private string inputPlaceholder = "> enter message_";
+    [Tooltip("Placeholder text colour.")]
+    [SerializeField] private Color placeholderColor = new Color(0.49f, 0.5f, 0.65f);
+    [Tooltip("Characters the player has already 'typed'.")]
+    [SerializeField] private Color draftTypedColor = new Color(0.9f, 0.91f, 1f);
+    [Tooltip("Characters not typed yet.")]
+    [SerializeField] private Color draftPendingColor = new Color(0.49f, 0.5f, 0.65f, 0.5f);
+    [SerializeField] private Color hintColor = new Color(0.49f, 0.5f, 0.65f);
+    [Tooltip("Hint colour once the line is complete (ENTER).")]
+    [SerializeField] private Color hintReadyColor = new Color(0f, 0.94f, 1f);
     [SerializeField] private GameObject replyPanel = null!;
     [SerializeField] private RectTransform replyContainer = null!;
 
@@ -69,11 +83,13 @@ public class JaycordPresenter : DialoguePresenterBase
     [Tooltip("How many characters light up per key press.")]
     [SerializeField, Range(1, 10)] private int charactersPerKey = 3;
 
-    [Header("Link card (#link)")]
+    [Header("Link cards")]
+    [Tooltip("Title used by the #link tag. <<jaycord_link>> passes its own title.")]
     [SerializeField] private string linkTitle = "TRANSMIGRATION LINK";
     [SerializeField] private string linkUrl = "jx://transmigrate/0x7F3A";
-    [Tooltip("If on, the chat pauses until the player presses OPEN LINK.")]
+    [Tooltip("If on, a #link line pauses the chat until the player presses OPEN LINK.")]
     [SerializeField] private bool linkWaitsForClick = true;
+    [Tooltip("Fired when the player opens a link (gets the link address). Hook a cutscene, Timeline, scene load… here.")]
     public UnityEvent<string> onLinkOpened = new UnityEvent<string>();
 
     [Header("Timing (seconds)")]
@@ -98,6 +114,8 @@ public class JaycordPresenter : DialoguePresenterBase
     private string? activeChat;     // the conversation Yarn is currently writing into
     private string? typingSpeaker;  // who is "typing…" in the active chat right now
     private int keysPressed;        // text-input events since last frame (TypeAndPressEnter)
+    private string? lastOtherSpeaker; // who last spoke in the active chat (sender of link cards)
+    private readonly Dictionary<JaycordRecord, JaycordLinkCard> liveLinkCards = new Dictionary<JaycordRecord, JaycordLinkCard>();
 
     // ------------------------------------------------------------------
     // Public API (used by JaycordCommands and the chat list)
@@ -106,6 +124,7 @@ public class JaycordPresenter : DialoguePresenterBase
     /// <summary>Yarn: &lt;&lt;jaycord_open NAME&gt;&gt; — continue the story in this chat and show it.</summary>
     public void OpenConversation(string contactName)
     {
+        if (activeChat != contactName) lastOtherSpeaker = null;
         activeChat = contactName;
         if (app != null) app.GetOrAdd(contactName);
         ShowConversation(contactName);
@@ -124,6 +143,23 @@ public class JaycordPresenter : DialoguePresenterBase
     }
 
     public void AddDivider(string label) => Append(new JaycordRecord { kind = JaycordRecord.Kind.Date, text = label });
+
+    /// <summary>
+    /// Yarn: &lt;&lt;jaycord_link "TITLE" "ADDRESS"&gt;&gt; — posts a link card (from whoever spoke last)
+    /// and waits until the player opens it. Yarn continues with the next line afterwards.
+    /// </summary>
+    public async YarnTask PostLink(string title, string url)
+    {
+        var record = new JaycordRecord
+        {
+            kind = JaycordRecord.Kind.Link,
+            sender = lastOtherSpeaker ?? activeChat ?? "",
+            title = title,
+            url = url,
+        };
+        Append(record);
+        await WaitUntilLinkOpened(record);
+    }
 
     /// <summary>Yarn: &lt;&lt;jaycord_clear&gt;&gt; — empty the active chat's history.</summary>
     public void ClearMessages()
@@ -219,19 +255,19 @@ public class JaycordPresenter : DialoguePresenterBase
                 await Wait(Mathf.Clamp(typingBase + text.Length * typingPerCharacter, typingMin, typingMax));
                 typingSpeaker = null;
                 typingIndicator.Hide();
+                lastOtherSpeaker = speaker;
                 Append(Message(speaker, text));
             }
         }
 
         if (HasTag(line, "link"))
         {
-            var record = new JaycordRecord { kind = JaycordRecord.Kind.Link, sender = speaker };
-            Append(record);
-            if (linkWaitsForClick)
+            var record = new JaycordRecord
             {
-                while (!record.linkOpened) await YarnTask.Yield();
-                onLinkOpened.Invoke(linkUrl);
-            }
+                kind = JaycordRecord.Kind.Link, sender = speaker, title = linkTitle, url = linkUrl,
+            };
+            Append(record);
+            if (linkWaitsForClick) await WaitUntilLinkOpened(record);
         }
 
         await Wait(pauseAfterMessage);
@@ -291,6 +327,27 @@ public class JaycordPresenter : DialoguePresenterBase
             await Wait(pauseAfterMessage);
         }
         return result;
+    }
+
+    // ------------------------------------------------------------------
+    // Links
+    // ------------------------------------------------------------------
+
+    /// <summary>Waits for OPEN LINK (mouse, or ENTER while the chat is on screen), then fires onLinkOpened.</summary>
+    private async YarnTask WaitUntilLinkOpened(JaycordRecord record)
+    {
+        while (!record.linkOpened)
+        {
+#if ENABLE_INPUT_SYSTEM
+            var keyboard = Keyboard.current;
+            bool enter = keyboard != null &&
+                         (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame);
+            if (enter && IsViewingActiveChat && liveLinkCards.TryGetValue(record, out var card) && card != null)
+                card.Open(); // same as clicking the button
+#endif
+            await YarnTask.Yield();
+        }
+        onLinkOpened.Invoke(string.IsNullOrEmpty(record.url) ? linkUrl : record.url);
     }
 
     // ------------------------------------------------------------------
@@ -367,22 +424,22 @@ public class JaycordPresenter : DialoguePresenterBase
     {
         string typed = text.Substring(0, revealed);
         string rest = text.Substring(revealed);
-        string bright = ColorUtility.ToHtmlStringRGB(JaycordTheme.TextPrimary);
-        string dim = ColorUtility.ToHtmlStringRGB(JaycordTheme.TextMuted);
+        string bright = ColorUtility.ToHtmlStringRGBA(draftTypedColor);
+        string dim = ColorUtility.ToHtmlStringRGBA(draftPendingColor);
         inputText.color = Color.white;
         inputText.text = $"<color=#{dim}>> </color><color=#{bright}><noparse>{typed}</noparse></color>" +
-                         $"<color=#{dim}80><noparse>{rest}</noparse></color>";
+                         $"<color=#{dim}><noparse>{rest}</noparse></color>";
         if (inputHint != null)
         {
-            inputHint.text = complete ? "ENTER ↵" : "TYPE";
-            inputHint.color = complete ? JaycordTheme.Cyan : JaycordTheme.TextMuted;
+            inputHint.text = complete ? "ENTER \u21B5" : "TYPE";
+            inputHint.color = complete ? hintReadyColor : hintColor;
         }
     }
 
     private void ResetInputBar()
     {
         inputText.text = inputPlaceholder;
-        inputText.color = JaycordTheme.TextMuted;
+        inputText.color = placeholderColor;
         if (inputHint != null) inputHint.text = "";
     }
 
@@ -434,6 +491,7 @@ public class JaycordPresenter : DialoguePresenterBase
             Destroy(child.gameObject);
         }
         lastSender = null;
+        liveLinkCards.Clear();
         typingIndicator.Hide();
 
         foreach (var record in ViewedHistory()) Render(record);
@@ -454,8 +512,11 @@ public class JaycordPresenter : DialoguePresenterBase
             case JaycordRecord.Kind.Link:
                 StartGroup(record.sender);
                 var card = Instantiate(linkCardPrefab, messageContainer);
-                card.Setup(linkTitle, linkUrl, unverified: true, alreadyOpened: record.linkOpened);
+                card.Setup(string.IsNullOrEmpty(record.title) ? linkTitle : record.title,
+                           string.IsNullOrEmpty(record.url) ? linkUrl : record.url,
+                           unverified: true, alreadyOpened: record.linkOpened);
                 card.onOpened = () => record.linkOpened = true;
+                liveLinkCards[record] = card;
                 break;
 
             default:
