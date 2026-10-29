@@ -488,6 +488,7 @@ GameObject:
   - component: {fileID: 1472713638977129695}
   - component: {fileID: 4140610280903577454}
   - component: {fileID: 5150374551639068249}
+  - component: {fileID: 3518608025005397203}
   m_Layer: 0
   m_Name: DialogueSystem
   m_TagString: Untagged
@@ -568,6 +569,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showDebug: 0
   debugTextView: {fileID: 0}
+--- !u!114 &3518608025005397203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1764103366212465704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 289e233b30f2b9b41ba173743575d603, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::YarnCommands
+  runner: {fileID: 0}
+  logCommands: 1
 --- !u!1 &1811656317228928600
 GameObject:
   m_ObjectHideFlags: 0
