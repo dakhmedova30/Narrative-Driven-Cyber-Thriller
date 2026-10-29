@@ -53,7 +53,12 @@ public class YarnCommands : MonoBehaviour
     // Stubs. Replace the body of each one when its system is ready.
     // ===================================================================
 
-    private void SetBackground(string name) => Log($"bg -> {name}");
+    private void SetBackground(string name)
+    {
+        Log($"bg -> {name}");
+        if (BackgroundManager.Instance != null) BackgroundManager.Instance.Show(name);
+        else Debug.LogWarning("[Yarn] <<bg>>: there is no BackgroundManager in this scene.");
+    }
     private void Show(string name)          => Log($"show -> {name}");
     private void Hide(string name)          => Log($"hide -> {name}");
     private void PlaySfx(string name)       => Log($"sfx -> {name}");

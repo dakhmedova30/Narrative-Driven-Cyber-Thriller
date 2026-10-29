@@ -81,7 +81,7 @@ tags: cutscene
 <<fade_out 1>>
 <<wait 2>>
 <<sfx subway_ambience>>
-<<bg subway_2027>>
+<<bg subway_reflection>>
 <<fade_in 1>>
 <<jump C0_Subway>>
 ===
@@ -99,6 +99,7 @@ Skye: W-wait. A train? I was just at my desk.
     Skye: Max... what did you send me?
 <<endif>>
 
+<<bg subway_2027>>
 <<camera pan subway_2027>>
 Skye: Why is everyone wearing glasses? And talking to... nobody?
 
