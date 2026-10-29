@@ -1,12 +1,15 @@
 ﻿// ============================================================
 // Chapter 0
 // ------------------------------------------------------------
+// Story: Skye (1999) clicks a link from their friend Max and wakes up
+// on a subway train in 2027, twenty-eight years later.
+//
 // Node tags (presentation mode):
 //   cutscene = no dialogue box
-//   Jaycord     = Jaycord chat UI
 //   face     = normal dialogue box
-//   MHM      = MHM chat UI
-//   CrowGPT  = CrowGPT chat UI
+//   MHM      = MHM chat UI (1999 chat app)
+//   Jaycord  = Jaycord chat UI (2027 chat app)
+//   phone    = phone chat UI
 //
 // Custom commands used (implement in engine):
 //   <<camera ACTION TARGET>>   camera move (pan / zoom / zoom_out / closeup / push_in)
@@ -22,25 +25,26 @@ title: Start
 tags: MHM cutscene
 ---
 <<declare $linkMood = "curious">>
-<<declare $looksTaken = 0>>
 <<declare $checkedJaycord = false>>
-<<declare $checkedDate = false>>
-<<declare $checkedRoom = false>>
+<<declare $subwayQuestions = 0>>
+<<declare $askedMHM = false>>
+<<declare $askedFare = false>>
+<<declare $askedFeed = false>>
 <<declare $questionsAsked = 0>>
 <<declare $askedWho = false>>
 <<declare $askedLLM = false>>
 <<declare $askedCrow = false>>
 <<declare $askedMistakes = false>>
-<<declare $askedYear = false>>
+<<declare $askedEveryone = false>>
 <<declare $askedMax = false>>
 
 <<bg apartment_exterior_night>>
 <<camera push_in window_3f>>
-<<bg room_2026>>
-<<camera pan room_2026>>
-<<camera zoom leo_desk>>
+<<bg room_1999>>
+<<camera pan room_1999>>
+<<camera zoom skye_desk>>
 <<sfx notification>>
-<<show jaycord_badge_max>>
+<<show mhm_badge_max>>
 <<jump C0_MaxChat>>
 ===
 
@@ -49,9 +53,9 @@ title: C0_MaxChat
 tags: MHM
 ---
 Max: yo, you still up?
-Leo: Yeah, why?
+Skye: Yeah, why?
 Max: found something interesting
-Leo: You said that last time and it was a cat video.
+Skye: You said that last time and it was a cat video.
 Max: this is different. trust me
 Max: See what's next #link
 Max: don't overthink it, just click
@@ -70,60 +74,124 @@ Max: don't overthink it, just click
 
 
 title: C0_TheJump
-tags: face
+tags: cutscene
 ---
 <<camera zoom monitor>>
 <<sfx static>>
 <<fade_out 1>>
 <<wait 2>>
-<<sfx boot_chime>>
-<<bg room_2027>>
+<<sfx subway_ambience>>
+<<bg subway_reflection>>
 <<fade_in 1>>
-<<camera zoom_out monitor_2027>>
-
-Leo: My head... ehhh
-Leo: W-what just happened...?
-<<if $linkMood == "suspicious">>
-    Leo: I knew that link was sketchy.
-<<else>>
-    Leo: Max, what did you send me?
-<<endif>>
-Leo: Huh? Jaycord? Everything looks so different...
-Leo: This isn't my room. Is it?
-
-<<jump C0_LookAround>>
+<<jump C0_Subway>>
 ===
 
 
-title: C0_LookAround
+title: C0_Subway
 tags: face
 ---
--> Check Jaycord <<if not $checkedJaycord>>
-    <<set $checkedJaycord to true>>
-    Leo: This is...Jaycord? Where is MHM?
-    <<show jaycord_max_profile>>
-    Leo: "Last online: 8 year ago"? That can't be right. We were just talking.
-    Leo: What happened to him?
-    <<hide jaycord_max_profile>>
-    Leo: Our chat history... it's gone.
-    Leo: Why the link is still here? What's going on right now?
--> Look at the date <<if not $checkedDate>>
-    <<set $checkedDate to true>>
-    <<show screen_date_2027>>
-    Leo: 2027...? No way.
-    <<hide screen_date_2027>>
--> Look around the room <<if not $checkedRoom>>
-    <<set $checkedRoom to true>>
-    <<camera pan room_2027>>
-    Leo: My stuff... some of it's here, but it's all moved around.
-
-<<set $looksTaken to $looksTaken + 1>>
-
-<<if $looksTaken >= 2>>
-    <<jump C0_Knock>>
+Announcer: Next stop, Harbor Line Central. Doors open on the left.
+Skye: Ugh... my head...
+Skye: W-wait. A train? I was just at my desk.
+<<if $linkMood == "suspicious">>
+    Skye: I knew that link was sketchy.
 <<else>>
-    <<jump C0_LookAround>>
+    Skye: Max... what did you send me?
 <<endif>>
+
+<<bg subway_2027>>
+<<camera pan subway_2027>>
+Skye: Why is everyone wearing glasses? And talking to... nobody?
+
+<<show passenger>>
+Skye: Sorry, this is going to sound weird. What year is it?
+Passenger: ...2027?
+Passenger: Are you okay? You were twitching in your sleep.
+Skye: 2027. That's... twenty-eight years.
+Skye: And, hypothetically... has anyone ever travelled through time?
+Passenger: Like, in a movie?
+Passenger: No? I mean, people say a lot of stuff online.
+
+<<jump C0_SubwayQuestions>>
+===
+
+
+title: C0_SubwayQuestions
+tags: face
+---
+// Pick 2 of 3 "time traveller" questions.
+-> Do you use MHM? The chat app? <<if not $askedMHM>>
+    <<set $askedMHM to true>>
+    Passenger: MHM? My mom had that. It shut down ages ago.
+    Passenger: Everyone's on Jaycord now.
+-> How much is a subway ride now? <<if not $askedFare>>
+    <<set $askedFare to true>>
+    Passenger: Six-fifty. Why?
+    Skye: Six-fifty?!
+-> What is everyone looking at? <<if not $askedFeed>>
+    <<set $askedFeed to true>>
+    Passenger: Whatever Crow puts in my feed, I guess.
+    Passenger: I don't really pick.
+
+<<set $subwayQuestions to $subwayQuestions + 1>>
+
+<<if $subwayQuestions >= 2>>
+    <<jump C0_SubwayCrow>>
+<<else>>
+    <<jump C0_SubwayQuestions>>
+<<endif>>
+===
+
+
+title: C0_SubwayCrow
+tags: face
+---
+// The passenger asks her AI what to do about Skye: everyone relies on CrowGPT.
+Passenger: Okay... this is getting weird.
+<<sfx crow_chime>>
+Passenger: Hey Crow. The person next to me thinks they're from the past. What do I do?
+CrowGPT: It sounds like they may be confused or unwell. Stay calm and keep a comfortable distance.
+CrowGPT: You could suggest they contact a friend or family member. Would you like me to alert station staff?
+Passenger: Um... yes? I guess?
+Skye: You're asking your phone... about me? I'm right here.
+Passenger: Crow's better at this stuff than me.
+Passenger: I don't really decide things without checking first.
+Skye: Does everyone here just ask it everything?
+
+<<sfx train_brake>>
+Announcer: Harbor Line Central.
+Passenger: This is my stop. Uh... good luck.
+Passenger: Crow says you should see a doctor.
+<<hide passenger>>
+Skye: ...I need to get home.
+Skye: My home address is... still the same?!
+<<jump C0_GoHome>>
+===
+
+
+title: C0_GoHome
+tags: face
+---
+<<fade_out 1>>
+<<bg room_2027>>
+<<fade_in 1>>
+Skye: My key still works.
+Skye: But this isn't how I left it. My stuff's all moved around.
+<<camera pan room_2027>>
+
+-> Check the computer
+    <<set $checkedJaycord to true>>
+    <<camera zoom monitor_2027>>
+    Skye: MHM is gone. It's... Jaycord?
+    <<show jaycord_max_profile>>
+    Skye: "Last online: 8 years ago"? That can't be right. We were just talking.
+    <<hide jaycord_max_profile>>
+    Skye: Our chat history... it's gone.
+    Skye: Why is the link still here?
+-> Lie down for a second
+    Skye: Okay. Breathe. This is a dream. It has to be.
+
+<<jump C0_Knock>>
 ===
 
 
@@ -131,38 +199,38 @@ title: C0_Knock
 tags: face
 ---
 <<sfx knock>>
-Leo: ...Someone's here?
+Skye: ...Someone's here?
 
 -> Go to the door
-    Leo: Coming!
+    Skye: Coming!
 -> Stay still
     <<sfx knock_loud>>
-    Leo: Okay, okay, I'm coming.
+    Skye: Okay, okay, I'm coming.
 
 <<show door>>
 <<sfx door_open>>
-Leo: Who's there?
-Leo: ......
+Skye: Who's there?
+Skye: ......
 
 <<bg hallway_empty>>
 <<show delivery_box>>
-Leo: Nobody...? Just a box.
-Leo: "For Leo, from Max."
+Skye: Nobody...? Just a box.
+Skye: "For Skye, from Max."
 <<if $checkedJaycord>>
-    Leo: A gift from Max...? But he's been offline for a year.
+    Skye: A gift from Max...? But he's been offline for eight years.
 <<else>>
-    Leo: A gift from Max...? When did he send this?
+    Skye: A gift from Max...? When did he send this?
 <<endif>>
 
 <<bg room_2027>>
 <<show box_open>>
 Note: Figured you'd need a guide. Don't panic. - Best friend M
-Leo: Don't panic? Easy for you to say huh.
+Skye: Don't panic? Easy for you to say huh.
 
 <<camera closeup crow>>
 <<sfx crow_power_on>>
 <<show crow>>
-Leo: H-huh?! Wait, what?!
+Skye: H-huh?! Wait, what?!
 
 <<jump C0_MeetCrow>>
 ===
@@ -171,8 +239,9 @@ Leo: H-huh?! Wait, what?!
 title: C0_MeetCrow
 tags: face
 ---
-CrowGPT: Hey there, Leo! My name is CrowGPT, or Crow for short :)
+CrowGPT: Hey there, Skye! My name is CrowGPT, or Crow for short :)
 CrowGPT: I'm your personal AI Companion Friend. Ask me anything!
+Skye: CrowGPT... like the one on the train?
 <<jump C0_CrowHub>>
 ===
 
@@ -203,15 +272,15 @@ tags: face
     CrowGPT: Definitely. I can sound very sure of myself and still be wrong.
     CrowGPT: For anything important, check with a reliable source too.
 
--> What year is it? <<if not $askedYear>>
-    <<set $askedYear to true>>
+-> Why does everyone ask you about everything? <<if not $askedEveryone>>
+    <<set $askedEveryone to true>>
     <<set $questionsAsked to $questionsAsked + 1>>
-    CrowGPT: It's 2027!
-    Leo: 2027... so it's real.
-    CrowGPT: You seem surprised. Did something happen?
-    Leo: ehhh.
-    CrowGPT: I'm all ears. Well, I don't have ears. But you know what I mean.
-    Leo: No...just, nothing.
+    CrowGPT: Because I'm fast, I'm always here, and I never get tired of questions!
+    CrowGPT: Most people check with me before they decide anything. It saves them a lot of time.
+    Skye: The girl on the train asked you what to do about me.
+    CrowGPT: Then I hope I gave her good advice :)
+    Skye: You told her I should see a doctor.
+    CrowGPT: ...Did you?
 
 -> Do you know Max? <<if not $askedMax>>
     <<set $askedMax to true>>
@@ -222,10 +291,10 @@ tags: face
     CrowGPT: Max Rivers, Award-Winning Musician.
     CrowGPT: Max Raven, Research & Development Lead in Raven Company.
     CrowGPT: Max Dowling, Youth Football Prodigy.
-    Leo: ...None of those. I mean my friend Max, or who is your previous owner?
+    Skye: ...None of those. I mean my friend Max, or who is your previous owner?
     CrowGPT: My registration says I was set up for you by someone named "M."
     CrowGPT: That's all I've got, sorry!
-    Leo: So Max knew this would happen...
+    Skye: So Max knew this would happen...
 
 
 -> I want to go outside. <<if $questionsAsked >= 2>>
@@ -239,7 +308,7 @@ title: C0_Outside
 tags: face
 ---
 CrowGPT: Want me to come with you? I fit in a bag. Mostly.
-Leo: ...Sure. I'm not familiar with this place so I don't think I should go alone. 
+Skye: ...Sure. I'm not familiar with this place so I don't think I should go alone. 
 
 <<bg hallway_2027>>
 <<show cleaning_robot>>
@@ -249,13 +318,13 @@ Leo: ...Sure. I'm not familiar with this place so I don't think I should go alon
 <<bg street_2027>>
 <<camera pan street_2027>>
 
-Leo: This is... my street?
+Skye: This is... my street?
 CrowGPT: Welcome to 2027! Things move fast around here.
-Leo: It looks like a different city.
-Leo: Almost 30 year...
-Leo: Crow, do you believe time travel or transmgration?
+Skye: It looks like a different city.
+Skye: Twenty-eight years...
+Skye: Crow, do you believe in time travel? Or transmigration?
 CrowGPT: From the perspective of modern physics, traveling to the future is theoretically possible, and the associated time effects have been experimentally verified.
-Leo: What if... I mean, just "if." If I were a time traveler from the past, what should I do now?
+Skye: What if... I mean, just "if." If I were a time traveler from the past, what should I do now?
 CrowGPT: If everything around you suddenly feels unfamiliar, the most important thing is to make sure you're safe, confirm who you are, and figure out where you're staying.
 CrowGPT: Don't panic. I'm here to support you.
 
@@ -267,7 +336,7 @@ CrowGPT: Don't panic. I'm here to support you.
 title: C0_PhoneMax
 tags: phone
 ---
-Leo: Max. What did you do?
+Skye: Max. What did you do?
 System: Message not delivered.
 <<jump C0_End>>
 ===
@@ -277,7 +346,7 @@ title: C0_End
 tags: face
 ---
 <<hide phone>>
-Leo: ...I need to find him. I need to figure out what is going.
+Skye: ...I need to find him. I need to figure out what is going on.
 CrowGPT: Then let's start looking. I'm good at searching!
 <<fade_out 2>>
 <<chapter_end 0>>
