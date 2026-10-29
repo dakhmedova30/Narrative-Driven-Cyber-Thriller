@@ -14,7 +14,7 @@ using UnityEngine.InputSystem;
 /// Shows Yarn dialogue as a Jaycord chat.
 ///
 ///   Max: hello        -> "Max is typing…", then Max's bubble (automatic)
-///   Leo: hi           -> the player "types" it: any key lights up the text, ENTER sends it
+///   Skye: hi           -> the player "types" it: any key lights up the text, ENTER sends it
 ///   -> option         -> the player picks a reply (click / 1-9), then types it the same way
 ///   System: ...       -> system message
 ///   Max: look #link   -> Max's bubble + a link card with the default title; waits for OPEN LINK
@@ -40,7 +40,7 @@ public class JaycordPresenter : DialoguePresenterBase
 
     [Header("Speakers")]
     [Tooltip("Lines from this character are the player's own messages.")]
-    [SerializeField] private string playerName = "Leo";
+    [SerializeField] private string playerName = "Skye";
     [Tooltip("Lines from these characters (or with no character) are system messages.")]
     [SerializeField] private string[] systemSpeakers = { "System" };
 

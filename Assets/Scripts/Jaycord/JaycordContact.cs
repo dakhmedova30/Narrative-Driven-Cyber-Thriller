@@ -20,7 +20,7 @@ public class JaycordRecord
     public enum Kind { Message, Date, Link }
 
     public Kind kind = Kind.Message;
-    [Tooltip("Who sent it. The player's name (e.g. Leo) = your own message, 'System' = system line.")]
+    [Tooltip("Who sent it. The player's name (e.g. Skye) = your own message, 'System' = system line.")]
     public string sender = "";
     [TextArea] public string text = "";
     [Tooltip("Link cards only: title (e.g. STOP THEM) and address shown on the card.")]

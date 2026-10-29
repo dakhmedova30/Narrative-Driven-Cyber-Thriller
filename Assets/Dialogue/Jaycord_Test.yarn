@@ -4,7 +4,7 @@
 // Played by Assets/Scenes/JaycordTest.unity (start node: Jaycord_Test).
 // Shows every feature of the Jaycord presenter:
 //   Max: ...        -> "Max is typing…" then Max's bubble (left)
-//   Leo: ...        -> typed into the input bar, then Leo's bubble (right)
+//   Skye: ...        -> typed into the input bar, then Skye's bubble (right)
 //   System: ...     -> system message
 //   ... #link       -> link card with the default title, chat waits for OPEN LINK
 //   <<jaycord_link "TITLE" "ADDRESS">> -> link card with your own title, waits for OPEN LINK
@@ -26,9 +26,9 @@ tags: Jaycord
 <<jaycord_divider "Nov 30, 2019 · 11:42 PM">>
 
 Max: yo, you still up?
-Leo: Yeah, why?
+Skye: Yeah, why?
 Max: found something interesting
-Leo: You said that last time and it was a cat video.
+Skye: You said that last time and it was a cat video.
 Max: this is different. trust me
 
 -> What is it?
@@ -64,6 +64,6 @@ System: Connection lost.
 <<jaycord_dossier Max STATUS "Missing">>
 <<jaycord_tag_remove Max owes_you>>
 <<jaycord_tag_add Max ghost>>
-Leo: Max? Are you there?
+Skye: Max? Are you there?
 System: Message not delivered.
 ===
