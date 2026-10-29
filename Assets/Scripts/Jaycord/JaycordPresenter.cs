@@ -103,6 +103,12 @@ public class JaycordPresenter : DialoguePresenterBase
     [SerializeField] private float playerCharactersPerSecond = 45f;
     [SerializeField] private float pauseAfterMessage = 0.35f;
 
+    [Header("Sounds (names in the Sound Library, empty = silent)")]
+    [SerializeField] private string keySound = "key_press";
+    [SerializeField] private string sendSound = "message_send";
+    [SerializeField] private string receiveSound = "message_receive";
+    [SerializeField] private string linkOpenSound = "link_open";
+
     [Header("Layout")]
     [Tooltip("Extra space when the sender changes (Figma: 8px inside a group, 35px between groups).")]
     [SerializeField] private float groupGap = 27f;
@@ -257,6 +263,7 @@ public class JaycordPresenter : DialoguePresenterBase
                 typingIndicator.Hide();
                 lastOtherSpeaker = speaker;
                 Append(Message(speaker, text));
+                PlaySound(receiveSound);
             }
         }
 
@@ -347,6 +354,7 @@ public class JaycordPresenter : DialoguePresenterBase
 #endif
             await YarnTask.Yield();
         }
+        PlaySound(linkOpenSound);
         onLinkOpened.Invoke(string.IsNullOrEmpty(record.url) ? linkUrl : record.url);
     }
 
@@ -379,17 +387,25 @@ public class JaycordPresenter : DialoguePresenterBase
 
                     if (keysPressed > 0)
                     {
+                        if (revealed < text.Length) PlaySound(keySound);
                         revealed = Mathf.Min(text.Length, revealed + keysPressed * charactersPerKey);
                         keysPressed = 0;
                     }
-                    if (keyboard.backspaceKey.wasPressedThisFrame)
+                    if (keyboard.backspaceKey.wasPressedThisFrame && revealed > 0)
+                    {
+                        PlaySound(keySound);
                         revealed = Mathf.Max(0, revealed - charactersPerKey);
+                    }
 
                     bool complete = revealed >= text.Length;
                     ShowDraft(text, revealed, complete);
 
                     bool enter = keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame;
-                    if (complete && enter) break;
+                    if (complete && enter)
+                    {
+                        PlaySound(sendSound);
+                        break;
+                    }
 
                     await YarnTask.Yield();
                 }
@@ -408,10 +424,18 @@ public class JaycordPresenter : DialoguePresenterBase
         for (int i = 1; i <= text.Length; i++)
         {
             ShowDraft(text, i, false);
+            if (i % 3 == 1) PlaySound(keySound);
             await YarnTask.Delay(msPerChar);
         }
         await Wait(0.2f);
+        PlaySound(sendSound);
         ResetInputBar();
+    }
+
+    private static void PlaySound(string soundName)
+    {
+        if (!string.IsNullOrEmpty(soundName) && AudioManager.Instance != null)
+            AudioManager.Instance.PlayUI(soundName);
     }
 
     private void OnTextInput(char c)
