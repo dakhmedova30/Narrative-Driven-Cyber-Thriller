@@ -1,0 +1,20 @@
+title: MHM_Test
+tags: MHM
+---
+<<declare $linkMood = "curious">>
+
+Skye: yo, you still up?
+Sage: Yeah, why?
+Skye: found something interesting
+Sage: You said that last time and it was a cat video.
+Skye: this is different. trust me
+Skye: See what's next #link
+Skye: don't overthink it, just click
+
+-> What is it?
+    Skye: you'll see :)
+    <<set $linkMood to "curious">>
+-> Is this a virus?
+    Skye: lol no. would i do that to you
+    <<set $linkMood to "suspicious">>
+===

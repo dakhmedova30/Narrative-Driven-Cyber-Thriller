@@ -1,16 +1,19 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class MessageView : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public TMP_Text nameText;
+    public TMP_Text timeText;
+    public TMP_Text bodyText;
+    public Image avatar;
 
-    // Update is called once per frame
-    void Update()
+    public void Setup(string who, string time, string body, Sprite pic = null)
     {
-        
+        nameText.text = who;
+        timeText.text = time;
+        bodyText.text = body;
+        if (pic != null) avatar.sprite = pic;
     }
 }

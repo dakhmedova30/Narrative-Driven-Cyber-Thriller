@@ -25,6 +25,7 @@ public class ChatManager : MonoBehaviour
     // temporary, just to test
     public void TestSend()
     {
+        Debug.Log("Send clicked!");
         AddMessage("MC", "00:00 AM", "here is the text message");
     }
 }

@@ -610,7 +610,8 @@ GameObject:
   - component: {fileID: 3414225488015081244}
   - component: {fileID: 2666593968108332912}
   - component: {fileID: 6058656583068985422}
-  - component: {fileID: 4749487172584971841}
+  - component: {fileID: 319316532410881936}
+  - component: {fileID: 254578038146196922}
   m_Layer: 0
   m_Name: Message
   m_TagString: Untagged
@@ -637,7 +638,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -16, y: 121}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 752, y: 71}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3414225488015081244
 CanvasRenderer:
@@ -703,7 +704,7 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &4749487172584971841
+--- !u!114 &319316532410881936
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -712,11 +713,35 @@ MonoBehaviour:
   m_GameObject: {fileID: 6516325207694688887}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Script: {fileID: 11500000, guid: 2a053f7a4918fad489e58abdac9e60d0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
-  m_HorizontalFit: 2
-  m_VerticalFit: 2
+  m_EditorClassIdentifier: Assembly-CSharp::MessageView
+  nameText: {fileID: 2969665251336029809}
+  timeText: {fileID: 2178264042856751043}
+  bodyText: {fileID: 7109044377608576669}
+  avatar: {fileID: 1666141840258652325}
+--- !u!114 &254578038146196922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6516325207694688887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: 80
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
+  m_MaxWidth: -1
+  m_MaxHeight: -1
 --- !u!1 &7814570651134386512
 GameObject:
   m_ObjectHideFlags: 0
