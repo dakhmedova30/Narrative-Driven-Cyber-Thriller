@@ -1,0 +1,69 @@
+// ============================================================
+// Jaycord test conversation
+// ------------------------------------------------------------
+// Played by Assets/Scenes/JaycordTest.unity (start node: Jaycord_Test).
+// Shows every feature of the Jaycord presenter:
+//   Max: ...        -> "Max is typing…" then Max's bubble (left)
+//   Skye: ...        -> typed into the input bar, then Skye's bubble (right)
+//   System: ...     -> system message
+//   ... #link       -> link card with the default title, chat waits for OPEN LINK
+//   <<jaycord_link "TITLE" "ADDRESS">> -> link card with your own title, waits for OPEN LINK
+//   -> option       -> reply options (press 1/2/3 or click)
+//   <<if ...>>      -> option shown as LOCKED when the condition is false
+//
+// Jaycord commands:
+//   <<jaycord_open NAME>>   <<jaycord_status "TEXT">>
+//   <<jaycord_divider "TEXT">>   <<jaycord_clear>>   <<jaycord_link "TITLE" "ADDRESS">>
+// ============================================================
+
+title: Jaycord_Test
+tags: Jaycord
+---
+<<declare $netrunnerLevel = 1>>
+
+<<jaycord_open Max>>
+<<jaycord_status "Last online: 8 years ago">>
+<<jaycord_divider "Nov 30, 2019 · 11:42 PM">>
+
+Max: yo, you still up?
+Skye: Yeah, why?
+Max: found something interesting
+Skye: You said that last time and it was a cat video.
+Max: this is different. trust me
+
+-> What is it?
+    Max: you'll see :)
+    <<jaycord_trust_add Max 10>>
+-> Is this a virus?
+    Max: lol no. would i do that to you
+    <<jaycord_trust_add Max -20>>
+    <<jaycord_tag_add Max suspicious>>
+-> Trace where he's sending this from (Netrunner Lv.3) <<if $netrunnerLevel >= 3>>
+    Max: ...how did you do that
+
+Max: just open it. don't overthink it
+
+// Link card with its own title. The story stops here until the player
+// presses OPEN LINK (or ENTER), then continues with the next line.
+<<jaycord_link "STOP THEM" "jx://transmigrate/0x7F3A">>
+<<jump Jaycord_Test_Transmigration>>
+===
+
+title: Jaycord_Test_Transmigration
+---
+// ------------------------------------------------------------
+// The transmigration cutscene goes here.
+// In the real game, replace this node with e.g. <<jump C0_TheJump>>,
+// or hook the cutscene to "On Link Opened" on the Jaycord Presenter.
+// ------------------------------------------------------------
+System: Connection lost.
+<<jaycord_divider "Today · 2027">>
+<<jaycord_status "Last online: 8 years ago">>
+// The profile card changes with the story:
+<<jaycord_presence Max offline>>
+<<jaycord_dossier Max STATUS "Missing">>
+<<jaycord_tag_remove Max owes_you>>
+<<jaycord_tag_add Max ghost>>
+Skye: Max? Are you there?
+System: Message not delivered.
+===
