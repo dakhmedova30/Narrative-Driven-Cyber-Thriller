@@ -1,8 +1,6 @@
 title: MHM_Test
 tags: MHM
 ---
-<<declare $linkMood = "curious">>
-
 Skye: yo, you still up?
 Sage: Yeah, why?
 Skye: found something interesting
@@ -17,4 +15,7 @@ Skye: don't overthink it, just click
 -> Is this a virus?
     Skye: lol no. would i do that to you
     <<set $linkMood to "suspicious">>
+-> Click the link
+    <<set $linkMood to "curious">>
+
 ===

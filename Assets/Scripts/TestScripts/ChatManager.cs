@@ -21,7 +21,7 @@ public class ChatManager : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         scrollRect.verticalNormalizedPosition = 0f;
     }
-    
+
     public OptionView optionPrefab;
     public Transform optionsContainer;
     public ToggleGroup optionsGroup;
@@ -44,6 +44,19 @@ public class ChatManager : MonoBehaviour
         foreach (OptionView opt in optionsContainer.GetComponentsInChildren<OptionView>())
             if (opt.toggle.isOn) return opt.index;
         return -1;
+    }
+
+    public bool sendPressed;
+
+    public void OnSendClicked()
+    {
+        if (optionsContainer.childCount > 0) sendPressed = true;
+    }
+
+    public void HideOptions()
+    {
+        foreach (Transform child in optionsContainer)
+            Destroy(child.gameObject);
     }
 
     // temporary, just to test
