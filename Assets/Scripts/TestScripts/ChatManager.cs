@@ -8,10 +8,10 @@ public class ChatManager : MonoBehaviour
     public Transform content;
     public ScrollRect scrollRect;
 
-    public void AddMessage(string who, string time, string body)
+    public void AddMessage(string who, string time, string body, bool isPlayer = false)
     {
         MessageView msg = Instantiate(messagePrefab, content);
-        msg.Setup(who, time, body);
+        msg.Setup(who, time, body, isPlayer);
         StartCoroutine(ScrollToBottom());
     }
 

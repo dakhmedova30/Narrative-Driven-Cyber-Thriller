@@ -370,7 +370,7 @@ MonoBehaviour:
     m_Top: 5
     m_Bottom: 5
   m_ChildAlignment: 0
-  m_Spacing: 2
+  m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -778,6 +778,8 @@ MonoBehaviour:
   timeText: {fileID: 2178264042856751043}
   bodyText: {fileID: 7109044377608576669}
   avatar: {fileID: 1666141840258652325}
+  playerColor: {r: 0.20392157, g: 0.5803922, b: 0, a: 1}
+  npcColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!114 &254578038146196922
 MonoBehaviour:
   m_ObjectHideFlags: 0

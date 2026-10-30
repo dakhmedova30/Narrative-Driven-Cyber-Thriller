@@ -29,7 +29,7 @@ public class ChatPresenter : DialoguePresenterBase
         if (who != playerName) await YarnTask.Delay(npcDelayMs);
         else await YarnTask.Delay(mcDelayMs);
 
-        chat.AddMessage(who, DateTime.Now.ToString("hh:mm tt"), text);
+        chat.AddMessage(who, DateTime.Now.ToString("hh:mm tt"), text, who == playerName);
         await YarnTask.Delay(400);   // short pause, then Yarn moves on by itself
     }
 
@@ -50,7 +50,7 @@ public class ChatPresenter : DialoguePresenterBase
 
         // the chosen option shows up as the player's own message
         chat.AddMessage(playerName, DateTime.Now.ToString("hh:mm tt"),
-                        options[picked].Line.TextWithoutCharacterName.Text);
+                        options[picked].Line.TextWithoutCharacterName.Text, true);
         return options[picked];
     }
 }
