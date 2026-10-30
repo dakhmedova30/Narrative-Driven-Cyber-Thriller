@@ -3340,7 +3340,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1420564221}
         m_TargetAssemblyTypeName: ChatManager, Assembly-CSharp
-        m_MethodName: TestSend
+        m_MethodName: OnSendClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
