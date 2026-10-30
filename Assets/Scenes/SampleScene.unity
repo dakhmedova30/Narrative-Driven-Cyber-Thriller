@@ -158,7 +158,19 @@ MonoBehaviour:
   - name: room_1999
     image: {fileID: 6527645339290528963, guid: 2cb8819f858f35b4399ae9dedf9f220d, type: 3}
   - name: room_2027
+    image: {fileID: 1985791889165528776, guid: 37307f79bb6418b40857bcb1a823e49b, type: 3}
+  - name: street_2027
+    image: {fileID: 3711049915070023283, guid: 482b9332940dbda43b999c20af5b49c3, type: 3}
+  - name: monitor_2027
     image: {fileID: 7694138343406495341, guid: 73441ca4029b59c408d180ef4ebd8bfa, type: 3}
+  - name: hallway_empty
+    image: {fileID: 9184052998252883643, guid: b54175ffdc110f64a959bfe4b4412326, type: 3}
+  - name: peek_out
+    image: {fileID: -590465372168129459, guid: 5499c4ae9f48a3c429653350164320a3, type: 3}
+  - name: box_on_table
+    image: {fileID: 5925868349876582697, guid: ed9194df39b92604dbd2716fd5ef3e2c, type: 3}
+  - name: box_crow
+    image: {fileID: -1634562917102766919, guid: 7d545e4c6297f614b91ddf9265357a1e, type: 3}
   fadeSeconds: 0.4
   sortingOrder: -100
 --- !u!4 &269758813

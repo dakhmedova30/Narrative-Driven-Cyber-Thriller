@@ -180,6 +180,7 @@ Skye: But this isn't how I left it. My stuff's all moved around.
 <<camera pan room_2027>>
 
 -> Check the computer
+    <<bg monitor_2027>>
     <<set $checkedJaycord to true>>
     <<camera zoom monitor_2027>>
     Skye: MHM is gone. It's... Jaycord?
@@ -212,9 +213,11 @@ Skye: ...Someone's here?
 Skye: Who's there?
 Skye: ......
 
+<<bg peek_out>>
+Skye: Nobody...?
 <<bg hallway_empty>>
 <<show delivery_box>>
-Skye: Nobody...? Just a box.
+Skye: ...Just a box.
 Skye: "For Skye, from Max."
 <<if $checkedJaycord>>
     Skye: A gift from Max...? But he's been offline for eight years.
@@ -222,11 +225,12 @@ Skye: "For Skye, from Max."
     Skye: A gift from Max...? When did he send this?
 <<endif>>
 
-<<bg room_2027>>
+<<bg box_on_table>>
 <<show box_open>>
 Note: Figured you'd need a guide. Don't panic. - Best friend M
 Skye: Don't panic? Easy for you to say huh.
 
+<<bg box_crow>>
 <<camera closeup crow>>
 <<sfx crow_power_on>>
 <<show crow>>
