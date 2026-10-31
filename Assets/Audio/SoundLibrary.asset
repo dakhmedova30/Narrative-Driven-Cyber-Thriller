@@ -81,3 +81,53 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 06400aeb639a4e469eb4701ac037a89b, type: 3}
     volume: 1
     pitchVariation: 0
+  - name: train_brake
+    clips:
+    - {fileID: 8300000, guid: 6fc1d115b0c34c99b812f66bcc9e3a56, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: knock
+    clips:
+    - {fileID: 8300000, guid: 2cff3d22251543e6b1f86f5130e37428, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: knock_loud
+    clips:
+    - {fileID: 8300000, guid: e92d0caeefa641fda932e5d3993a5a13, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: door_open
+    clips:
+    - {fileID: 8300000, guid: 1f9ab301710048aea3afc8c274970dd3, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: box_open
+    clips:
+    - {fileID: 8300000, guid: 220aa1d7097541db99270cd24ec62a80, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: paper
+    clips:
+    - {fileID: 8300000, guid: 8d8ea910e2194afc9c9e7bcbee9eb4e5, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: robot_whir
+    clips:
+    - {fileID: 8300000, guid: d46e6772777f4e46b5e8d652d3903646, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: room_ambience_1999
+    clips:
+    - {fileID: 8300000, guid: 040f02d3d6a6424f9b1ba1af9d5b7bdd, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: subway_ambience
+    clips:
+    - {fileID: 8300000, guid: 40de688926564d7b9379667e0a3aa098, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: street_ambience_2027
+    clips:
+    - {fileID: 8300000, guid: ef2c04113f6c4cc09e88daf645800723, type: 3}
+    volume: 1
+    pitchVariation: 0
