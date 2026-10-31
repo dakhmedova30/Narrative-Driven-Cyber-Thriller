@@ -12,4 +12,72 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31aac5ca87a35f845aa0f3e3e0cf7d47, type: 3}
   m_Name: SoundLibrary
   m_EditorClassIdentifier: Assembly-CSharp::SoundLibrary
-  sounds: []
+  sounds:
+  - name: crow_chime
+    clips:
+    - {fileID: 8300000, guid: db8f342d36ea425a9d1a28eff2be1d41, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: crow_power_on
+    clips:
+    - {fileID: 8300000, guid: a35df135081d41ad9da842f3c873f21b, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: key_press
+    clips:
+    - {fileID: 8300000, guid: c35812a7bb6b415a8e6b4e73660637a7, type: 3}
+    - {fileID: 8300000, guid: 3760e47d929a479d9807b5f746883dbf, type: 3}
+    - {fileID: 8300000, guid: ebe7998c8656467f9cdeeabc2cc61f05, type: 3}
+    - {fileID: 8300000, guid: a9a3b1eb950841c2a23e8916bdbc2624, type: 3}
+    volume: 1
+    pitchVariation: 0.06
+  - name: link_open
+    clips:
+    - {fileID: 8300000, guid: 754b9b6b730a402cbc560cd002bcbb6e, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: message_failed
+    clips:
+    - {fileID: 8300000, guid: 14cbf8a010a141ad9a5bbffae24593f6, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: message_receive
+    clips:
+    - {fileID: 8300000, guid: 9cfacb297c654e12aa65119ee4959948, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: message_send
+    clips:
+    - {fileID: 8300000, guid: 77a472cdb46c4be598827dadbbab0ec3, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: notification
+    clips:
+    - {fileID: 8300000, guid: 24fea2a6e7ed447bbe8bcd8bf7dae6b0, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: option_hover
+    clips:
+    - {fileID: 8300000, guid: 2f9df1e361834b43a91c5719451c65e2, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: option_locked
+    clips:
+    - {fileID: 8300000, guid: ae05003c07664b748dc49941f5135dd3, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: option_select
+    clips:
+    - {fileID: 8300000, guid: dce268a707a44082ba6091a8fc281a59, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: static
+    clips:
+    - {fileID: 8300000, guid: aa0efb1422ec493491f5c639f9d4f54f, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: train_chime
+    clips:
+    - {fileID: 8300000, guid: 06400aeb639a4e469eb4701ac037a89b, type: 3}
+    volume: 1
+    pitchVariation: 0
