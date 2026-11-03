@@ -14,17 +14,43 @@ public class FriendListManager : MonoBehaviour
     {
         AddFriend("Matt", Presence.Offline);   // test row
         AddFriend("Skye", Presence.Online);   // test row
+        AddFriend("Max", Presence.Away);   // test row
     }
+
+    // public void AddFriend(string username, Presence p)
+    // {
+    //     FriendView f = Instantiate(friendPrefab, content);
+    //     f.Setup(username, p, group);
+    //     friends[username] = f;
+    // }
+
+    public ChatManager chat;
+
+    void OnFriendSelected(string username) { chat.OpenRoom(username); }
 
     public void AddFriend(string username, Presence p)
     {
         FriendView f = Instantiate(friendPrefab, content);
-        f.Setup(username, p, group);
+        f.Setup(username, p, group, OnFriendSelected);
         friends[username] = f;
+
+        if (friends.Count == 1) f.toggle.isOn = true;   // first friend opens by default
     }
 
     public void SetStatus(string username, Presence p)
     {
         if (friends.TryGetValue(username, out FriendView f)) f.SetStatus(p);
+    }
+
+    void OnEnable()  { chat.RoomUpdated += OnRoomUpdated; }
+    void OnDisable() { chat.RoomUpdated -= OnRoomUpdated; }
+
+    void OnRoomUpdated(string room, string preview, int unread)
+    {
+        if (friends.TryGetValue(room, out FriendView f))
+        {
+            f.SetPreview(preview);
+            f.SetUnread(unread);
+        }
     }
 }
