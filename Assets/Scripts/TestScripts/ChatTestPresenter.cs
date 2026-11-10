@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using Yarn.Unity;
 
-public class ChatPresenter : DialoguePresenterBase
+public class ChatTestPresenter : DialoguePresenterBase
 {
     public ChatManager chat;
     string lastNpc = "";

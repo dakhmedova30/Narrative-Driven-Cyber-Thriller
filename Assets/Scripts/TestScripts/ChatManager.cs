@@ -146,4 +146,9 @@ public class ChatManager : MonoBehaviour
     //     AddMessage("MC", "00:00 AM", "here is the text message");
     //     ShowOptions(new string[] { "Text 1...", "Text 2...", "Text 3..." });
     // }
+
+    void OnEnable()
+    {
+        if (currentRoom != "") StartCoroutine(ScrollToBottom());
+    }
 }

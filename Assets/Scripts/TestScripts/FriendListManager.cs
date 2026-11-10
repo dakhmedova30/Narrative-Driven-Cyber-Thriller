@@ -10,11 +10,13 @@ public class FriendListManager : MonoBehaviour
 
     Dictionary<string, FriendView> friends = new Dictionary<string, FriendView>();
 
+    [System.Serializable]
+    public class FriendData { public string username; public Presence presence; }
+    public FriendData[] startingFriends;
+
     void Start()
     {
-        AddFriend("Matt", Presence.Offline);   // test row
-        AddFriend("Skye", Presence.Online);   // test row
-        AddFriend("Max", Presence.Away);   // test row
+        foreach (var f in startingFriends) AddFriend(f.username, f.presence);
     }
 
     // public void AddFriend(string username, Presence p)
