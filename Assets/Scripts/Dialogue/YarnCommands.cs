@@ -44,6 +44,10 @@ public class YarnCommands : MonoBehaviour
 
         // ---- Audio ---------------------------------------------------------
         runner.AddCommandHandler<string>("sfx", PlaySfx);                // <<sfx knock>>
+        runner.AddCommandHandler<string>("ambience", PlayAmbience);      // <<ambience subway_ambience>>  (loops)
+        runner.AddCommandHandler<float>("ambience_stop", StopAmbience);  // <<ambience_stop 1>>  (fade seconds)
+        runner.AddCommandHandler<string>("music", PlayMusic);            // <<music theme_1999>>  (loops)
+        runner.AddCommandHandler<float>("music_stop", StopMusic);        // <<music_stop 2>>
 
         // ---- Flow ----------------------------------------------------------
         runner.AddCommandHandler<int>("chapter_end", EndChapter);        // <<chapter_end 0>>
@@ -61,7 +65,50 @@ public class YarnCommands : MonoBehaviour
     }
     private void Show(string name)          => Log($"show -> {name}");
     private void Hide(string name)          => Log($"hide -> {name}");
-    private void PlaySfx(string name)       => Log($"sfx -> {name}");
+    private void PlaySfx(string name)
+    {
+        Log($"sfx -> {name}");
+        if (Audio != null) Audio.PlaySfx(name);
+    }
+
+    private void PlayAmbience(string name)
+    {
+        Log($"ambience -> {name}");
+        if (Audio != null) Audio.PlayAmbience(name);
+    }
+
+    private void StopAmbience(float seconds)
+    {
+        Log($"ambience_stop -> {seconds}s");
+        if (Audio != null) Audio.StopAmbience(seconds);
+    }
+
+    private void PlayMusic(string name)
+    {
+        Log($"music -> {name}");
+        if (Audio != null) Audio.PlayMusic(name);
+    }
+
+    private void StopMusic(float seconds)
+    {
+        Log($"music_stop -> {seconds}s");
+        if (Audio != null) Audio.StopMusic(seconds);
+    }
+
+    private AudioManager Audio
+    {
+        get
+        {
+            if (AudioManager.Instance == null && !warnedNoAudio)
+            {
+                warnedNoAudio = true;
+                Debug.LogWarning("[Yarn] Sound commands need an AudioManager in the scene.");
+            }
+            return AudioManager.Instance;
+        }
+    }
+
+    private bool warnedNoAudio;
 
     private IEnumerator MoveCamera(string action, string target)
     {
