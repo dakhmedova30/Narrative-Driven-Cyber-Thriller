@@ -3,9 +3,10 @@ using System.Linq;
 using UnityEngine;
 using Yarn.Unity;
 
-public class ChatPresenter : DialoguePresenterBase
+public class ChatTestPresenter : DialoguePresenterBase
 {
     public ChatManager chat;
+    string lastNpc = "";
     public string playerName = "Skye";
     public int npcDelayMs = 900;
     public int mcDelayMs = 900;
@@ -29,7 +30,11 @@ public class ChatPresenter : DialoguePresenterBase
         if (who != playerName) await YarnTask.Delay(npcDelayMs);
         else await YarnTask.Delay(mcDelayMs);
 
-        chat.AddMessage(who, DateTime.Now.ToString("hh:mm tt"), text, who == playerName);
+        // chat.AddMessage(who, DateTime.Now.ToString("hh:mm tt"), text, who == playerName);
+        bool isPlayer = who == playerName;
+        if (!isPlayer) lastNpc = who;
+        chat.AddMessage(lastNpc, who, DateTime.Now.ToString("hh:mm tt"), text, isPlayer);
+
         await YarnTask.Delay(400);   // short pause, then Yarn moves on by itself
     }
 
@@ -40,7 +45,8 @@ public class ChatPresenter : DialoguePresenterBase
         var options = dialogueOptions.Where(o => o.IsAvailable).ToArray();
 
         chat.sendPressed = false;
-        chat.ShowOptions(options.Select(o => o.Line.TextWithoutCharacterName.Text).ToArray());
+        // chat.ShowOptions(options.Select(o => o.Line.TextWithoutCharacterName.Text).ToArray());
+        chat.ShowOptions(lastNpc, options.Select(o => o.Line.TextWithoutCharacterName.Text).ToArray());
 
         await YarnTask.WaitUntil(() => chat.sendPressed);
 
@@ -49,8 +55,12 @@ public class ChatPresenter : DialoguePresenterBase
         chat.sendPressed = false;
 
         // the chosen option shows up as the player's own message
-        chat.AddMessage(playerName, DateTime.Now.ToString("hh:mm tt"),
-                        options[picked].Line.TextWithoutCharacterName.Text, true);
+        // chat.AddMessage(playerName, DateTime.Now.ToString("hh:mm tt"),
+                                // options[picked].Line.TextWithoutCharacterName.Text, true);
+
+        chat.AddMessage(lastNpc, playerName, DateTime.Now.ToString("hh:mm tt"),
+                options[picked].Line.TextWithoutCharacterName.Text, true);
+
         return options[picked];
     }
 }

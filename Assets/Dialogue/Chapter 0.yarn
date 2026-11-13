@@ -52,20 +52,40 @@ tags: MHM cutscene
 title: C0_MaxChat
 tags: MHM
 ---
-Max: yo, you still up?
-Skye: Yeah, why?
-Max: found something interesting
-Skye: You said that last time and it was a cat video.
-Max: this is different. trust me
-Max: See what's next #link
-Max: don't overthink it, just click
+
+<<bg monitor_1999>>
+<<show MHM>>
+
+<<mystatus idle "">>
+
+Skye: yo, you still up?
+-> Yeah, why?
+    <<mystatus online "">>
+
+Skye: found something interesting
+-> You said that last time and it was a cat video.
+
+Skye: this is different. trust me
+Skye: See what's next #link
+Skye: don't overthink it, just click
+
+<<jump C0_MaxChat_dialogue_options>>
+===
+
+title: C0_MaxChat_dialogue_options
+tags: MHM
+---
 
 -> What is it?
-    Max: you'll see :)
+    Skye: you'll see :)
     <<set $linkMood to "curious">>
+    <<mystatus online {$linkMood}>>
+    <<jump C0_MaxChat_dialogue_options>>
 -> Is this a virus?
-    Max: lol no. would i do that to you
+    Skye: lol no. would i do that to you
     <<set $linkMood to "suspicious">>
+    <<mystatus online {$linkMood}>>
+    <<jump C0_MaxChat_dialogue_options>>
 -> Click the link
     <<set $linkMood to "curious">>
 
