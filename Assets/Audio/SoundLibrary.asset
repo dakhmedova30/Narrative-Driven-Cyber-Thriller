@@ -1,0 +1,133 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31aac5ca87a35f845aa0f3e3e0cf7d47, type: 3}
+  m_Name: SoundLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::SoundLibrary
+  sounds:
+  - name: crow_chime
+    clips:
+    - {fileID: 8300000, guid: db8f342d36ea425a9d1a28eff2be1d41, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: crow_power_on
+    clips:
+    - {fileID: 8300000, guid: a35df135081d41ad9da842f3c873f21b, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: key_press
+    clips:
+    - {fileID: 8300000, guid: c35812a7bb6b415a8e6b4e73660637a7, type: 3}
+    - {fileID: 8300000, guid: 3760e47d929a479d9807b5f746883dbf, type: 3}
+    - {fileID: 8300000, guid: ebe7998c8656467f9cdeeabc2cc61f05, type: 3}
+    - {fileID: 8300000, guid: a9a3b1eb950841c2a23e8916bdbc2624, type: 3}
+    volume: 1
+    pitchVariation: 0.06
+  - name: link_open
+    clips:
+    - {fileID: 8300000, guid: 754b9b6b730a402cbc560cd002bcbb6e, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: message_failed
+    clips:
+    - {fileID: 8300000, guid: 14cbf8a010a141ad9a5bbffae24593f6, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: message_receive
+    clips:
+    - {fileID: 8300000, guid: 9cfacb297c654e12aa65119ee4959948, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: message_send
+    clips:
+    - {fileID: 8300000, guid: 77a472cdb46c4be598827dadbbab0ec3, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: notification
+    clips:
+    - {fileID: 8300000, guid: 24fea2a6e7ed447bbe8bcd8bf7dae6b0, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: option_hover
+    clips:
+    - {fileID: 8300000, guid: 2f9df1e361834b43a91c5719451c65e2, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: option_locked
+    clips:
+    - {fileID: 8300000, guid: ae05003c07664b748dc49941f5135dd3, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: option_select
+    clips:
+    - {fileID: 8300000, guid: dce268a707a44082ba6091a8fc281a59, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: static
+    clips:
+    - {fileID: 8300000, guid: aa0efb1422ec493491f5c639f9d4f54f, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: train_chime
+    clips:
+    - {fileID: 8300000, guid: 06400aeb639a4e469eb4701ac037a89b, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: train_brake
+    clips:
+    - {fileID: 8300000, guid: 6fc1d115b0c34c99b812f66bcc9e3a56, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: knock
+    clips:
+    - {fileID: 8300000, guid: 2cff3d22251543e6b1f86f5130e37428, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: knock_loud
+    clips:
+    - {fileID: 8300000, guid: e92d0caeefa641fda932e5d3993a5a13, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: door_open
+    clips:
+    - {fileID: 8300000, guid: 1f9ab301710048aea3afc8c274970dd3, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: box_open
+    clips:
+    - {fileID: 8300000, guid: 220aa1d7097541db99270cd24ec62a80, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: paper
+    clips:
+    - {fileID: 8300000, guid: 8d8ea910e2194afc9c9e7bcbee9eb4e5, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: robot_whir
+    clips:
+    - {fileID: 8300000, guid: d46e6772777f4e46b5e8d652d3903646, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: room_ambience_1999
+    clips:
+    - {fileID: 8300000, guid: 040f02d3d6a6424f9b1ba1af9d5b7bdd, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: subway_ambience
+    clips:
+    - {fileID: 8300000, guid: 40de688926564d7b9379667e0a3aa098, type: 3}
+    volume: 1
+    pitchVariation: 0
+  - name: street_ambience_2027
+    clips:
+    - {fileID: 8300000, guid: ef2c04113f6c4cc09e88daf645800723, type: 3}
+    volume: 1
+    pitchVariation: 0

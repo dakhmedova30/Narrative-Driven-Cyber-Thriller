@@ -15,7 +15,9 @@
 //   <<camera ACTION TARGET>>   camera move (pan / zoom / zoom_out / closeup / push_in)
 //   <<bg NAME>>                swap background
 //   <<show NAME>> / <<hide NAME>>  show or hide an item / character
-//   <<sfx NAME>>               play sound effect
+//   <<sfx NAME>>               play sound effect (once)
+//   <<ambience NAME>>          looping background sound (cross-fades) / <<ambience_stop SECONDS>>
+//   <<music NAME>>             looping music / <<music_stop SECONDS>>
 //   <<fade_out SECONDS>> / <<fade_in SECONDS>>
 //   <<chapter_end NUMBER>>
 // ============================================================
@@ -41,6 +43,7 @@ tags: MHM cutscene
 <<bg apartment_exterior_night>>
 <<camera push_in window_3f>>
 <<bg room_1999>>
+<<ambience room_ambience_1999>>
 <<camera pan room_1999>>
 <<camera zoom skye_desk>>
 <<sfx notification>>
@@ -100,7 +103,7 @@ tags: cutscene
 <<sfx static>>
 <<fade_out 1>>
 <<wait 2>>
-<<sfx subway_ambience>>
+<<ambience subway_ambience>>
 <<bg subway_reflection>>
 <<fade_in 1>>
 <<jump C0_Subway>>
@@ -110,6 +113,7 @@ tags: cutscene
 title: C0_Subway
 tags: face
 ---
+<<sfx train_chime>>
 Announcer: Next stop, Harbor Line Central. Doors open on the left.
 Skye: Ugh... my head...
 Skye: W-wait. A train? I was just at my desk.
@@ -193,6 +197,7 @@ title: C0_GoHome
 tags: face
 ---
 <<fade_out 1>>
+<<ambience_stop 1>>
 <<bg room_2027>>
 <<fade_in 1>>
 Skye: My key still works.
@@ -247,6 +252,7 @@ Skye: "For Skye, from Max."
 
 <<bg box_on_table>>
 <<show box_open>>
+<<sfx paper>>
 Note: Figured you'd need a guide. Don't panic. - Best friend M
 Skye: Don't panic? Easy for you to say huh.
 
@@ -336,10 +342,12 @@ Skye: ...Sure. I'm not familiar with this place so I don't think I should go alo
 
 <<bg hallway_2027>>
 <<show cleaning_robot>>
+<<sfx robot_whir>>
 <<camera pan hallway_2027>>
 <<hide cleaning_robot>>
 <<sfx door_open>>
 <<bg street_2027>>
+<<ambience street_ambience_2027>>
 <<camera pan street_2027>>
 
 Skye: This is... my street?
@@ -361,6 +369,7 @@ title: C0_PhoneMax
 tags: phone
 ---
 Skye: Max. What did you do?
+<<sfx message_failed>>
 System: Message not delivered.
 <<jump C0_End>>
 ===
@@ -372,6 +381,7 @@ tags: face
 <<hide phone>>
 Skye: ...I need to find him. I need to figure out what is going on.
 CrowGPT: Then let's start looking. I'm good at searching!
+<<ambience_stop 2>>
 <<fade_out 2>>
 <<chapter_end 0>>
 ===

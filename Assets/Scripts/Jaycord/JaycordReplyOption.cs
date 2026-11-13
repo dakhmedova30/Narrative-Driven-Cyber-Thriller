@@ -19,6 +19,11 @@ public class JaycordReplyOption : MonoBehaviour, IPointerEnterHandler, IPointerE
     [SerializeField] private TMP_Text label;
     [SerializeField] private GameObject lockedTag;
 
+    [Header("Sounds (names in the Sound Library, empty = silent)")]
+    [SerializeField] private string hoverSound = "option_hover";
+    [SerializeField] private string selectSound = "option_select";
+    [SerializeField] private string lockedSound = "option_locked";
+
     private Action onSelected;
     private bool available;
     private bool interactable;
@@ -41,6 +46,7 @@ public class JaycordReplyOption : MonoBehaviour, IPointerEnterHandler, IPointerE
     {
         if (!CanSelect) return;
         interactable = false;
+        PlaySound(selectSound);
         SetState(State.Selected);
         onSelected?.Invoke();
     }
@@ -48,9 +54,26 @@ public class JaycordReplyOption : MonoBehaviour, IPointerEnterHandler, IPointerE
     /// <summary>Stop reacting to input (another reply was chosen).</summary>
     public void Lock() => interactable = false;
 
-    public void OnPointerEnter(PointerEventData eventData) { if (CanSelect) SetState(State.Hover); }
-    public void OnPointerExit(PointerEventData eventData)  { if (CanSelect) SetState(State.Default); }
-    public void OnPointerClick(PointerEventData eventData) { Select(); }
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (!CanSelect) return;
+        PlaySound(hoverSound);
+        SetState(State.Hover);
+    }
+
+    public void OnPointerExit(PointerEventData eventData) { if (CanSelect) SetState(State.Default); }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!available && interactable) PlaySound(lockedSound);
+        Select();
+    }
+
+    private static void PlaySound(string soundName)
+    {
+        if (!string.IsNullOrEmpty(soundName) && AudioManager.Instance != null)
+            AudioManager.Instance.PlayUI(soundName);
+    }
 
     public void SetState(State state)
     {
