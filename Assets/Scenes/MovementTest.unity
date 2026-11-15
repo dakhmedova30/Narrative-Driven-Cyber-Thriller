@@ -150,8 +150,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01b247eb2984dd84abab80e8461d1a30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraXLimits
-  leftEdge: -10
-  rightEdge: 10
+  leftEdge: -22
+  rightEdge: 22
   limitsEnabled: 1
 --- !u!114 &985045796
 MonoBehaviour:
@@ -174,7 +174,7 @@ MonoBehaviour:
       Size: {x: 0.3, y: 1}
     HardLimits:
       Enabled: 0
-      Size: {x: 0.8, y: 0.8}
+      Size: {x: 0.8, y: 1}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
   TargetOffset: {x: 0, y: 0, z: 0}
@@ -432,8 +432,8 @@ MonoBehaviour:
   acceleration: 25
   arriveDistance: 0.03
   useBounds: 1
-  minX: -8
-  maxX: 8
+  minX: -20
+  maxX: 20
   spriteRenderer: {fileID: 0}
   spriteFacesRight: 1
   animator: {fileID: 0}
@@ -602,7 +602,7 @@ Transform:
   m_GameObject: {fileID: 1265806523}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.99603176, z: -10}
+  m_LocalPosition: {x: 0.00000023841858, y: 0.99603176, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -977,7 +977,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.1, z: 0}
-  m_LocalScale: {x: 30, y: 0.2, z: 1}
+  m_LocalScale: {x: 50, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
