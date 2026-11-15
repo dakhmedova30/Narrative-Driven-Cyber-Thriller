@@ -86,7 +86,9 @@ public class PlayerMover : MonoBehaviour
 
     private void OnEnable()
     {
-        if (Instance != null && Instance != this)
+        // Same scene twice = setup mistake. (During a scene change the old player is still
+        // alive for a moment, which is fine.)
+        if (Instance != null && Instance != this && Instance.gameObject.scene == gameObject.scene)
             Debug.LogWarning("[PlayerMover] More than one PlayerMover is active. Instance now points to " + name);
         Instance = this;
     }
