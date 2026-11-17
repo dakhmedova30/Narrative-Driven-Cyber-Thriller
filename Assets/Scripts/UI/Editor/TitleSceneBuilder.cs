@@ -41,6 +41,6 @@ public static class TitleSceneBuilder
 
         EditorUtility.DisplayDialog(Title,
             "Created Assets/Scenes/Title.unity and made it the first scene of the build.\n\n" +
-            "Select \"Title Screen\" to set the New Game scene (default: Home).", "OK");
+            "New Game starts step 1 of the Game Flow (Tools > Game > Open Game Flow).", "OK");
     }
 }

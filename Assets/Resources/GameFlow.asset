@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ba1cffc25936cd4da8a0bca1dd044f8, type: 3}
+  m_Name: GameFlow
+  m_EditorClassIdentifier: Assembly-CSharp::GameFlow
+  steps:
+  - name: Title
+    scene: Title
+    spawn: 
+    startNode: 
+    nextAfterNode: 
+  - name: Chapter 0
+    scene: SampleScene
+    spawn: 
+    startNode: Start
+    nextAfterNode: C0_End
+  - name: Street
+    scene: Street
+    spawn: 
+    startNode: 
+    nextAfterNode: 
