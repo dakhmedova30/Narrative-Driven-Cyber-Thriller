@@ -38,6 +38,21 @@ public class SceneTransitioner : MonoBehaviour
     /// <summary>Fired after the new area is loaded and the player is placed (before the fade-in). Arg = spawn id.</summary>
     public static event System.Action<string> OnAreaEntered;
 
+    /// <summary>Fired after the fade-in finished. Arg = true if this was loading a save (not walking to an area).</summary>
+    public static event System.Action<bool> OnTransitionFinished;
+
+    /// <summary>Fired after the fade-out, right before the old scene unloads. Arg = true if loading a save.</summary>
+    public static event System.Action<bool> OnBeforeLoad;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        instance = null;
+        OnAreaEntered = null;
+        OnTransitionFinished = null;
+        OnBeforeLoad = null;
+    }
+
     [SerializeField, Min(0f)] private float fadeOutSeconds = 0.4f;
     [SerializeField, Min(0f)] private float fadeInSeconds = 0.4f;
     [SerializeField] private Color fadeColor = Color.black;
@@ -45,6 +60,7 @@ public class SceneTransitioner : MonoBehaviour
     private Image overlay;
     private bool busy;
     private string pendingSpawn;
+    private bool placeAtSpawn = true;
     private PlayerMover lockedPlayer;
 
     private void Awake()
@@ -73,13 +89,30 @@ public class SceneTransitioner : MonoBehaviour
             Debug.LogError($"[SceneTransitioner] Scene \"{sceneName}\" is not in File > Build Profiles > Scene List (or the name is misspelled).");
             return false;
         }
-        StartCoroutine(Run(sceneName, spawnId));
+        StartCoroutine(Run(sceneName, spawnId, true, null));
         return true;
     }
 
-    private IEnumerator Run(string sceneName, string spawnId)
+    /// <summary>
+    /// Used by GameSession to load a save: same fade, but the player is NOT moved to a spawn point
+    /// (the save places them). afterStart runs one frame after loading, before the fade-in.
+    /// </summary>
+    public bool LoadForSave(string sceneName, System.Func<Scene, IEnumerator> afterStart)
+    {
+        if (busy) return false;
+        if (!Application.CanStreamedLevelBeLoaded(sceneName))
+        {
+            Debug.LogError($"[SceneTransitioner] Scene \"{sceneName}\" is not in File > Build Profiles > Scene List.");
+            return false;
+        }
+        StartCoroutine(Run(sceneName, null, false, afterStart));
+        return true;
+    }
+
+    private IEnumerator Run(string sceneName, string spawnId, bool useSpawn, System.Func<Scene, IEnumerator> afterStart)
     {
         busy = true;
+        DialoguePlayback.StopSkip();
         overlay.raycastTarget = true; // block clicks during the transition
 
         lockedPlayer = PlayerMover.Instance;
@@ -87,11 +120,15 @@ public class SceneTransitioner : MonoBehaviour
 
         yield return Fade(0f, 1f, fadeOutSeconds);
 
+        OnBeforeLoad?.Invoke(!useSpawn);
         pendingSpawn = spawnId;
+        placeAtSpawn = useSpawn;
         SceneManager.sceneLoaded += HandleSceneLoaded;
         AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
         while (!op.isDone) yield return null;
         yield return null; // let Start() run in the new scene
+
+        if (afterStart != null) yield return afterStart(SceneManager.GetActiveScene());
 
         yield return Fade(1f, 0f, fadeInSeconds);
 
@@ -99,6 +136,7 @@ public class SceneTransitioner : MonoBehaviour
         lockedPlayer = null;
         overlay.raycastTarget = false;
         busy = false;
+        OnTransitionFinished?.Invoke(!useSpawn);
     }
 
     // Runs after the new scene's Awake/OnEnable but BEFORE its first Update/LateUpdate,
@@ -129,7 +167,7 @@ public class SceneTransitioner : MonoBehaviour
         {
             player.Lock(LockReason);   // keep still while fading in
             lockedPlayer = player;
-            if (chosen != null)
+            if (chosen != null && placeAtSpawn)
             {
                 player.Teleport(chosen.transform.position.x);
                 player.SetFacing(chosen.FaceRight);

@@ -30,6 +30,9 @@ public class AreaExit : MonoBehaviour
     [Tooltip("SpawnPoint Id in the target scene. Empty = that scene's default spawn.")]
     [SerializeField] private string targetSpawn;
 
+    [Tooltip("Tick to make this exit go to the NEXT STEP of the Game Flow (Target Scene / Spawn are then ignored).")]
+    [SerializeField] private bool advancesGameFlow;
+
     [Header("Trigger zone (world X, centred on this object)")]
     [SerializeField, Min(0.1f)] private float zoneWidth = 1.5f;
 
@@ -91,7 +94,8 @@ public class AreaExit : MonoBehaviour
     /// <summary>Go through this exit now (also used by the arrow button).</summary>
     public void Go()
     {
-        SceneTransitioner.Instance.GoTo(targetScene, targetSpawn);
+        if (advancesGameFlow && GameSession.Instance != null) GameSession.Instance.Flow.Next();
+        else SceneTransitioner.Instance.GoTo(targetScene, targetSpawn);
     }
 
     private bool IsInside(float x) => Mathf.Abs(x - transform.position.x) <= zoneWidth * 0.5f;

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -17,6 +18,22 @@ using UnityEngine.Audio;
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
+
+    // Player volume settings (Settings menu). Multiplied on top of the channel volumes below.
+    private static float userMusic = 1f, userSfx = 1f;
+
+    /// <summary>Settings menu: music (music + ambience) and sound effect (sfx + ui) volume, 0..1.</summary>
+    public static void SetUserVolumes(float music, float sfx)
+    {
+        float oldMusic = userMusic;
+        userMusic = Mathf.Max(0.0001f, Mathf.Clamp01(music)); // never exactly 0, so volumes can be scaled back up
+        userSfx = Mathf.Clamp01(sfx);
+        if (Instance != null) Instance.RescaleLoops(oldMusic, userMusic);
+    }
+
+    /// <summary>Name of the music / ambience playing now (empty = none). Used by save files.</summary>
+    public string CurrentMusic { get; private set; } = "";
+    public string CurrentAmbience { get; private set; } = "";
 
     [SerializeField] private SoundLibrary library;
 
@@ -80,16 +97,30 @@ public class AudioManager : MonoBehaviour
     public void PlayUI(string soundName) => PlayOneShot(uiPool, ref uiNext, soundName, uiVolume);
 
     /// <summary>Start a looping ambience, cross-fading from the previous one.</summary>
-    public void PlayAmbience(string soundName, float fadeSeconds = 1f) =>
+    public void PlayAmbience(string soundName, float fadeSeconds = 1f)
+    {
+        CurrentAmbience = soundName ?? "";
         Crossfade(ambience, ref ambienceCurrent, soundName, ambienceVolume, fadeSeconds);
+    }
 
-    public void StopAmbience(float fadeSeconds = 1f) => FadeOutAll(ambience, fadeSeconds);
+    public void StopAmbience(float fadeSeconds = 1f)
+    {
+        CurrentAmbience = "";
+        FadeOutAll(ambience, fadeSeconds);
+    }
 
     /// <summary>Start looping music, cross-fading from the previous track.</summary>
-    public void PlayMusic(string soundName, float fadeSeconds = 2f) =>
+    public void PlayMusic(string soundName, float fadeSeconds = 2f)
+    {
+        CurrentMusic = soundName ?? "";
         Crossfade(music, ref musicCurrent, soundName, musicVolume, fadeSeconds);
+    }
 
-    public void StopMusic(float fadeSeconds = 2f) => FadeOutAll(music, fadeSeconds);
+    public void StopMusic(float fadeSeconds = 2f)
+    {
+        CurrentMusic = "";
+        FadeOutAll(music, fadeSeconds);
+    }
 
     // ------------------------------------------------------------------
 
@@ -101,7 +132,7 @@ public class AudioManager : MonoBehaviour
         var source = pool[next];
         next = (next + 1) % pool.Count;
         source.clip = sound.clips[Random.Range(0, sound.clips.Length)];
-        source.volume = sound.volume * channelVolume;
+        source.volume = sound.volume * channelVolume * userSfx;
         source.pitch = 1f + Random.Range(-sound.pitchVariation, sound.pitchVariation);
         source.Play();
     }
@@ -122,7 +153,7 @@ public class AudioManager : MonoBehaviour
         to.pitch = 1f;
         to.Play();
 
-        StartFade(to, sound.volume * channelVolume, fadeSeconds);
+        StartFade(to, sound.volume * channelVolume * userMusic, fadeSeconds);
         StartFade(from, 0f, fadeSeconds);
     }
 
@@ -150,6 +181,16 @@ public class AudioManager : MonoBehaviour
         source.volume = target;
         if (target <= 0f) source.Stop();
         fades.Remove(source);
+    }
+
+    // Music settings changed: scale the looping sources that are playing right now.
+    private void RescaleLoops(float oldUser, float newUser)
+    {
+        foreach (var source in ambience.Concat(music))
+        {
+            if (source == null || !source.isPlaying || fades.ContainsKey(source)) continue;
+            source.volume = source.volume / oldUser * newUser;
+        }
     }
 
     private SoundLibrary.Sound Lookup(string soundName)
