@@ -14,6 +14,8 @@ public class SaveData
     public float playTime;          // seconds
     public int chapter;
     public string sceneName;
+    public int flowStep = -1;       // Game Flow step index
+    public string progressLabel;    // Game Flow step name, e.g. "Chapter 0"
 
     // ---- Player ----
     public bool hasPlayer;

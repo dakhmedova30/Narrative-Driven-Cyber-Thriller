@@ -41,12 +41,16 @@ public class SceneTransitioner : MonoBehaviour
     /// <summary>Fired after the fade-in finished. Arg = true if this was loading a save (not walking to an area).</summary>
     public static event System.Action<bool> OnTransitionFinished;
 
+    /// <summary>Fired after the fade-out, right before the old scene unloads. Arg = true if loading a save.</summary>
+    public static event System.Action<bool> OnBeforeLoad;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
     {
         instance = null;
         OnAreaEntered = null;
         OnTransitionFinished = null;
+        OnBeforeLoad = null;
     }
 
     [SerializeField, Min(0f)] private float fadeOutSeconds = 0.4f;
@@ -116,6 +120,7 @@ public class SceneTransitioner : MonoBehaviour
 
         yield return Fade(0f, 1f, fadeOutSeconds);
 
+        OnBeforeLoad?.Invoke(!useSpawn);
         pendingSpawn = spawnId;
         placeAtSpawn = useSpawn;
         SceneManager.sceneLoaded += HandleSceneLoaded;

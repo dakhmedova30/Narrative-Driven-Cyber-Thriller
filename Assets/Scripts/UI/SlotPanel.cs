@@ -105,7 +105,7 @@ public class SlotPanel
 
         UIKit.Label(card.transform, SaveManager.DisplayName(slotId), 26f, UIKit.TextColor, TextAlignmentOptions.Left, 32f);
         string info = filled
-            ? $"Chapter {data.chapter}  ·  {data.sceneName}\n{data.savedAt}\nPlay time {SaveManager.FormatPlayTime(data.playTime)}"
+            ? $"{(string.IsNullOrEmpty(data.progressLabel) ? "Chapter " + data.chapter : data.progressLabel)}  ·  {data.sceneName}\n{data.savedAt}\nPlay time {SaveManager.FormatPlayTime(data.playTime)}"
             : "Empty";
         UIKit.Label(card.transform, info, 19f, UIKit.MutedColor, TextAlignmentOptions.TopLeft, 70f);
 

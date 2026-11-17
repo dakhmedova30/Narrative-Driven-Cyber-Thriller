@@ -52,6 +52,11 @@ public class GameSession : MonoBehaviour
 
     private SaveData checkpoint;   // state at the start of the current dialogue node
     private SaveData pendingLoad;  // save being loaded
+    private SaveData carriedVariables; // Yarn variables taken along to the next scene
+    private bool dropVariables;        // new game / back to title: start with fresh variables
+
+    /// <summary>The main story order (Tools > Game > Open Game Flow).</summary>
+    public GameFlowController Flow { get; private set; }
     private float lastAutosave = -999f;
     private bool autosavePending;
     private bool saving;
@@ -91,12 +96,15 @@ public class GameSession : MonoBehaviour
 
         SceneManager.sceneLoaded += OnSceneLoaded;
         SceneTransitioner.OnTransitionFinished += OnTransitionFinished;
+        SceneTransitioner.OnBeforeLoad += OnBeforeSceneLoad;
+        Flow = gameObject.AddComponent<GameFlowController>();
     }
 
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
         SceneTransitioner.OnTransitionFinished -= OnTransitionFinished;
+        SceneTransitioner.OnBeforeLoad -= OnBeforeSceneLoad;
         if (Instance == this)
         {
             Instance = null;
@@ -124,9 +132,28 @@ public class GameSession : MonoBehaviour
         }
 
         HookScene(scene);
+        if (mode != LoadSceneMode.Single) return;
 
-        if (pendingLoad != null && mode == LoadSceneMode.Single)
+        if (pendingLoad != null)
+        {
             StateCapture.ApplyEarly(pendingLoad, scene);
+        }
+        else if (carriedVariables != null && !IsOnTitle)
+        {
+            // Story choices made in the previous scene stay true here.
+            StateCapture.ApplyVariables(carriedVariables, scene);
+        }
+        carriedVariables = null;
+
+        Flow.OnSceneReady(scene, runners);
+    }
+
+    // Right before a scene change: remember the Yarn variables (unless a save or a new game decides them).
+    private void OnBeforeSceneLoad(bool isSaveLoad)
+    {
+        if (isSaveLoad || dropVariables || IsOnTitle) carriedVariables = null;
+        else carriedVariables = StateCapture.CaptureVariables(SceneManager.GetActiveScene());
+        dropVariables = false;
     }
 
     private void HookScene(Scene scene)
@@ -153,6 +180,7 @@ public class GameSession : MonoBehaviour
             {
                 r.AddCommandHandler<int>("chapter", SetChapter);       // <<chapter 1>>
                 r.AddCommandHandler("autosave", AutosaveCommand);      // <<autosave>>
+                r.AddCommandHandler("next", NextStepCommand);          // <<next>>  (Game Flow)
             }
             catch (Exception e)
             {
@@ -176,6 +204,7 @@ public class GameSession : MonoBehaviour
 
     private void OnNodeStart(DialogueRunner runner, string node)
     {
+        Flow.OnNodeStart(runner, node);
         if (IsOnTitle) return;
         checkpoint = StateCapture.Capture(SceneManager.GetActiveScene());
         checkpoint.dialogueRunner = runner.gameObject.name;
@@ -185,6 +214,7 @@ public class GameSession : MonoBehaviour
 
     private void OnDialogueComplete(DialogueRunner finished)
     {
+        Flow.OnDialogueComplete(finished);
         if (runners.Any(r => r != null && r != finished && r.IsDialogueRunning)) return;
         checkpoint = null;
         StartCoroutine(NextFrame(RequestAutosave));
@@ -236,6 +266,7 @@ public class GameSession : MonoBehaviour
         Scene active = SceneManager.GetActiveScene();
         IsOnTitle = StateCapture.Find<TitleScreen>(active) != null;
         HookScene(active);
+        Flow.OnSceneReady(active, runners); // does nothing if the scene-loaded event already handled it
     }
 
     private void Update()
@@ -323,6 +354,8 @@ public class GameSession : MonoBehaviour
 
     private void AutosaveCommand() => RequestAutosave();
 
+    private void NextStepCommand() => Flow.Next();
+
     // ------------------------------------------------------------------
     // Saving
     // ------------------------------------------------------------------
@@ -372,6 +405,8 @@ public class GameSession : MonoBehaviour
         data.playTime = PlayTime;
         data.savedAt = now.ToString("yyyy-MM-dd HH:mm");
         data.savedAtTicks = now.Ticks;
+        data.flowStep = Flow.CurrentIndex;
+        data.progressLabel = Flow.CurrentStepName;
 
         byte[] jpg = thumbnail;
         if (jpg == null) yield return SaveManager.CaptureThumbnail(bytes => jpg = bytes);
@@ -413,6 +448,7 @@ public class GameSession : MonoBehaviour
         IsLoading = true;
         PlayTime = data.playTime;
         CurrentChapter = data.chapter;
+        Flow.PrepareLoad(data.flowStep);
 
         if (!SceneTransitioner.Instance.LoadForSave(data.sceneName, AfterSaveSceneStarted))
         {
@@ -450,16 +486,21 @@ public class GameSession : MonoBehaviour
         try { return r.Dialogue.NodeExists(node); } catch { return false; }
     }
 
-    public void NewGame(string firstScene)
+    /// <summary>Start the first game step of the Game Flow (step 1) with fresh story variables.</summary>
+    public void NewGame()
     {
         if (IsBusy) return;
         CurrentChapter = 0;
         PlayTime = 0f;
         checkpoint = null;
         pendingLoad = null;
+        dropVariables = true;
         LoadStarted?.Invoke();
-        if (!SceneTransitioner.Instance.GoTo(firstScene, ""))
-            ShowToast($"Scene \"{firstScene}\" is not in the Build Profiles scene list");
+        if (!Flow.GoToStep(1))
+        {
+            dropVariables = false;
+            ShowToast("Game Flow needs a step 1 (Tools > Game > Open Game Flow)");
+        }
     }
 
     public void ReturnToTitle()
@@ -467,8 +508,13 @@ public class GameSession : MonoBehaviour
         if (IsBusy) return;
         SetPaused(false);
         LoadStarted?.Invoke();
-        if (!SceneTransitioner.Instance.GoTo(TitleSceneName, ""))
-            ShowToast($"Scene \"{TitleSceneName}\" is not in the Build Profiles scene list");
+        dropVariables = true;
+        bool ok = Flow.Flow != null ? Flow.GoToStep(0) : SceneTransitioner.Instance.GoTo(TitleSceneName, "");
+        if (!ok)
+        {
+            dropVariables = false;
+            ShowToast("Can't find the title scene (Game Flow step 0)");
+        }
     }
 
     public static void QuitGame()

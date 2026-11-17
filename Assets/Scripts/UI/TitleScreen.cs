@@ -5,13 +5,12 @@ using UnityEngine.UI;
 /// <summary>
 /// Title screen (template): New Game, Continue, Load Game, Settings, Quit.
 /// Put this on one GameObject in the Title scene (the menu Tools > Game > Create Title Scene does it).
+/// New Game starts step 1 of the Game Flow (Tools > Game > Open Game Flow).
 /// While this component is in the scene, GameSession knows it's the title: no pause menu, no autosave,
 /// play time doesn't count.
 /// </summary>
 public class TitleScreen : MonoBehaviour
 {
-    [Tooltip("Scene that New Game starts in. Must be in the Build Profiles scene list.")]
-    [SerializeField] private string newGameScene = "Home";
     [SerializeField] private string gameTitle = "NARRATIVE-DRIVEN CYBER THRILLER";
     [Tooltip("Optional background picture.")]
     [SerializeField] private Sprite background;
@@ -60,9 +59,9 @@ public class TitleScreen : MonoBehaviour
     {
         if (GameSession.Instance == null) return;
         if (SaveManager.AnyExists() && GameUI.Instance != null)
-            GameUI.Instance.Confirm("Start a new game? Your saves are kept.", () => GameSession.Instance.NewGame(newGameScene));
+            GameUI.Instance.Confirm("Start a new game? Your saves are kept.", () => GameSession.Instance.NewGame());
         else
-            GameSession.Instance.NewGame(newGameScene);
+            GameSession.Instance.NewGame();
     }
 
     private void Continue()

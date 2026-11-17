@@ -24,13 +24,7 @@ public static class StateCapture
         }
 
         // Yarn variables (merged from every variable storage in the scene)
-        foreach (VariableStorageBehaviour storage in All<VariableStorageBehaviour>(scene))
-        {
-            var (floats, strings, bools) = storage.GetAllVariables();
-            foreach (var kv in floats) Put(d.floats, kv.Key, new FloatVar { name = kv.Key, value = kv.Value });
-            foreach (var kv in strings) Put(d.strings, kv.Key, new StringVar { name = kv.Key, value = kv.Value });
-            foreach (var kv in bools) Put(d.bools, kv.Key, new BoolVar { name = kv.Key, value = kv.Value });
-        }
+        AddVariables(d, scene);
 
         // Background / audio
         if (BackgroundManager.Instance != null) d.background = BackgroundManager.Instance.CurrentName;
@@ -73,11 +67,36 @@ public static class StateCapture
             player.SetFacing(d.playerFacingRight);
         }
 
-        var floats = d.floats.ToDictionary(v => v.name, v => v.value);
-        var strings = d.strings.ToDictionary(v => v.name, v => v.value);
-        var bools = d.bools.ToDictionary(v => v.name, v => v.value);
+        ApplyVariables(d, scene);
+    }
+
+    /// <summary>Only the Yarn variables (used to carry story choices to the next scene).</summary>
+    public static SaveData CaptureVariables(Scene scene)
+    {
+        var d = new SaveData();
+        AddVariables(d, scene);
+        return d;
+    }
+
+    /// <summary>Put Yarn variables into every variable storage of the scene.</summary>
+    public static void ApplyVariables(SaveData d, Scene scene)
+    {
+        var floats = d.floats.GroupBy(v => v.name).ToDictionary(g => g.Key, g => g.Last().value);
+        var strings = d.strings.GroupBy(v => v.name).ToDictionary(g => g.Key, g => g.Last().value);
+        var bools = d.bools.GroupBy(v => v.name).ToDictionary(g => g.Key, g => g.Last().value);
         foreach (VariableStorageBehaviour storage in All<VariableStorageBehaviour>(scene))
             storage.SetAllVariables(floats, strings, bools, true);
+    }
+
+    private static void AddVariables(SaveData d, Scene scene)
+    {
+        foreach (VariableStorageBehaviour storage in All<VariableStorageBehaviour>(scene))
+        {
+            var (floats, strings, bools) = storage.GetAllVariables();
+            foreach (var kv in floats) Put(d.floats, kv.Key, new FloatVar { name = kv.Key, value = kv.Value });
+            foreach (var kv in strings) Put(d.strings, kv.Key, new StringVar { name = kv.Key, value = kv.Value });
+            foreach (var kv in bools) Put(d.bools, kv.Key, new BoolVar { name = kv.Key, value = kv.Value });
+        }
     }
 
     /// <summary>One frame later (after Start()): Jaycord, background, music.</summary>
