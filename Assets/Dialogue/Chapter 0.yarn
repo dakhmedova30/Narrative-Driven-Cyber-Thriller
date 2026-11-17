@@ -57,20 +57,19 @@ tags: MHM
 ---
 
 <<bg monitor_1999>>
-<<show MHM>>
 
 <<mystatus idle "">>
 
-Skye: yo, you still up?
+Max: yo, you still up?
 -> Yeah, why?
     <<mystatus online "">>
 
-Skye: found something interesting
+Max: found something interesting
 -> You said that last time and it was a cat video.
 
-Skye: this is different. trust me
-Skye: See what's next #link
-Skye: don't overthink it, just click
+Max: this is different. trust me
+Max: See what's next #link
+Max: don't overthink it, just click
 
 <<jump C0_MaxChat_dialogue_options>>
 ===
@@ -80,12 +79,12 @@ tags: MHM
 ---
 
 -> What is it?
-    Skye: you'll see :)
+    Max: you'll see :)
     <<set $linkMood to "curious">>
     <<mystatus online {$linkMood}>>
     <<jump C0_MaxChat_dialogue_options>>
 -> Is this a virus?
-    Skye: lol no. would i do that to you
+    Max: lol no. would i do that to you
     <<set $linkMood to "suspicious">>
     <<mystatus online {$linkMood}>>
     <<jump C0_MaxChat_dialogue_options>>
@@ -207,16 +206,42 @@ Skye: But this isn't how I left it. My stuff's all moved around.
 -> Check the computer
     <<bg monitor_2027>>
     <<set $checkedJaycord to true>>
-    <<camera zoom monitor_2027>>
-    Skye: MHM is gone. It's... Jaycord?
-    <<show jaycord_max_profile>>
-    Skye: "Last online: 8 years ago"? That can't be right. We were just talking.
-    <<hide jaycord_max_profile>>
-    Skye: Our chat history... it's gone.
-    Skye: Why is the link still here?
+    <<jump C0_CheckJaycord>>
 -> Lie down for a second
     Skye: Okay. Breathe. This is a dream. It has to be.
 
+<<jump C0_Knock>>
+===
+
+title: C0_CheckJaycord
+tags: Jaycord face
+---
+<<camera zoom monitor_2027>>
+<<jaycord_presence Max offline>>
+<<jaycord_status "LAST ONLINE 8 YEARS AGO">>
+
+Skye: MHM is gone. It's... Jaycord?
+
+<<jump C0_JaycordMax>>
+===
+
+title: C0_JaycordMax
+tags: Jaycord
+---
+<<jaycord_open Max>>
+
+System: No message history found.
+Max: See what's next #link
+
+<<jump C0_JaycordReact>>
+===
+
+title: C0_JaycordReact
+tags: Jaycord face
+---
+Skye: "Last online: 8 years ago"? That can't be right. We were just talking.
+Skye: Our chat history... it's gone.
+Skye: Why is the link still here?
 <<jump C0_Knock>>
 ===
 
@@ -224,6 +249,7 @@ Skye: But this isn't how I left it. My stuff's all moved around.
 title: C0_Knock
 tags: face
 ---
+<<bg room_2027>>
 <<sfx knock>>
 Skye: ...Someone's here?
 

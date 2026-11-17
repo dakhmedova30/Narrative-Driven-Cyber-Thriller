@@ -6,8 +6,9 @@ using Yarn.Unity;
 public class ChatPresenter : DialoguePresenterBase
 {
     public ChatAppRouter router;
-    public string playerName = "Skye";
+    public string playerName = "Max";
     public int npcDelayMs = 900;
+    public string linkUrl = "jx://transmigrate/0x7F3A";
 
     string lastNpc = "";
 
@@ -19,6 +20,10 @@ public class ChatPresenter : DialoguePresenterBase
         var chat = router.Current != null ? router.Current.chat : null;
         string who = line.CharacterName ?? "";
         string text = line.TextWithoutCharacterName.Text;
+
+        bool isLink = line.Metadata != null &&
+            line.Metadata.Any(m => m.TrimStart('#').Equals("link", StringComparison.OrdinalIgnoreCase));
+        if (isLink) text = $"{text} <u><color=#3b5bdb>{linkUrl}</color></u>";
 
         if (chat == null)   // not an MHM node: log it so the story keeps moving
         {

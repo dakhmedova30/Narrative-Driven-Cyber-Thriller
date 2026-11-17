@@ -14,10 +14,10 @@ public class ChatAppRouter : MonoBehaviour
     // hooked to the Dialogue Runner's "On Node Start" event
     public void OnNodeStart(string nodeName)
     {
-        // var tags = runner.GetTagsForNode(nodeName)?.ToArray() ?? new string[0];
         var tags = runner.Dialogue.GetHeaders(nodeName)
                     .Where(h => h.Key == "tags").SelectMany(h => h.Value.Split(' ')).ToArray();
         bool cutscene = tags.Contains("cutscene");
+        bool face = tags.Contains("face");
 
         Current = null;
         foreach (var app in apps)
@@ -27,6 +27,11 @@ public class ChatAppRouter : MonoBehaviour
             if (show) Current = app;
         }
 
-        runner.DialoguePresenters = (Current != null) ? chatPresenters : defaultPresenters;
+        if (Current != null && !face)
+            runner.DialoguePresenters = (Current.presenters != null && Current.presenters.Length > 0)
+                ? Current.presenters
+                : chatPresenters;           // fallback so MHM keeps working until you fill it in
+        else
+            runner.DialoguePresenters = defaultPresenters;
     }
 }
