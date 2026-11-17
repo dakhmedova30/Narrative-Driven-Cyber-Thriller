@@ -1,0 +1,17 @@
+﻿title: SaveTest
+tags: face
+---
+<<declare $trust = 0>>
+<<chapter 1>>
+Leo: This is line one.
+Leo: This is line two.
+<<set $trust to $trust + 1>>
+Leo: Trust is now {$trust}.
+-> Option A
+    Leo: You picked A.
+-> Option B
+    Leo: You picked B.
+Leo: Line after the choice.
+Leo: Last line.
+<<chapter_end 1>>
+===

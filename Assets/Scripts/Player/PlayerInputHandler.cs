@@ -4,8 +4,7 @@ using UnityEngine.InputSystem;
 
 /// <summary>
 /// Reads player input and drives PlayerMover:
-///   - A / D             -> hold to walk
-///   - Left / Right arrow -> hold to walk
+///   - Move Left / Move Right keys (default A/D and arrows, rebindable in Settings) -> hold to walk
 ///   - Left click / tap   -> walk to the X of the clicked point
 /// Keyboard always wins: pressing a key cancels a click target.
 /// Clicks on UI (dialogue box, Jaycord, buttons) are ignored.
@@ -16,8 +15,8 @@ using UnityEngine.InputSystem;
 public class PlayerInputHandler : MonoBehaviour
 {
     [Header("Which controls are on")]
-    [SerializeField] private bool useAD = true;
-    [SerializeField] private bool useArrowKeys = true;
+    [Tooltip("Move Left / Move Right keys from GameInput (players can rebind them in Settings).")]
+    [SerializeField] private bool useKeyboard = true;
     [SerializeField] private bool useClickToMove = true;
 
     [Header("Click to move")]
@@ -42,19 +41,11 @@ public class PlayerInputHandler : MonoBehaviour
     {
         // ---- Keyboard ----
         bool left = false, right = false;
-        Keyboard kb = Keyboard.current;
-        if (kb != null)
+        if (useKeyboard && !GameInput.IsRebinding)
         {
-            if (useAD)
-            {
-                left |= kb.aKey.isPressed;
-                right |= kb.dKey.isPressed;
-            }
-            if (useArrowKeys)
-            {
-                left |= kb.leftArrowKey.isPressed;
-                right |= kb.rightArrowKey.isPressed;
-            }
+            GameInput.Init();
+            left = GameInput.MoveLeft.IsPressed();
+            right = GameInput.MoveRight.IsPressed();
         }
         float dir = (right ? 1f : 0f) - (left ? 1f : 0f);
         mover.SetInputDirection(dir);

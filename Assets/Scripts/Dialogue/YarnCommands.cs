@@ -128,7 +128,11 @@ public class YarnCommands : MonoBehaviour
         yield return new WaitForSeconds(seconds); // TODO: ScreenFader
     }
 
-    private void EndChapter(int chapter) => Log($"chapter_end -> {chapter}");
+    private void EndChapter(int chapter)
+    {
+        Log($"chapter_end -> {chapter}");
+        if (GameSession.Instance != null) GameSession.Instance.OnChapterEnd(chapter); // unlocks "skip all" + autosave
+    }
 
     private void Log(string message)
     {

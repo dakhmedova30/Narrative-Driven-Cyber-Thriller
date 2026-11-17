@@ -425,7 +425,7 @@ public class JaycordPresenter : DialoguePresenterBase
         {
             ShowDraft(text, i, false);
             if (i % 3 == 1) PlaySound(keySound);
-            await YarnTask.Delay(msPerChar);
+            await DialoguePlayback.Wait(msPerChar / 1000f);
         }
         await Wait(0.2f);
         PlaySound(sendSound);
@@ -609,8 +609,9 @@ public class JaycordPresenter : DialoguePresenterBase
 
     private YarnTask Wait(float seconds)
     {
-        int ms = Mathf.RoundToInt(seconds * 1000f / Mathf.Max(0.01f, speed));
-        return ms <= 0 ? YarnTask.CompletedTask : YarnTask.Delay(ms);
+        // DialoguePlayback adds the player's 1x/2x/3x speed, Skip and pause on top of this presenter's own speed.
+        float s = seconds / Mathf.Max(0.01f, speed);
+        return s <= 0f ? YarnTask.CompletedTask : DialoguePlayback.Wait(s);
     }
 
     private static bool HasTag(LocalizedLine line, string tag)
