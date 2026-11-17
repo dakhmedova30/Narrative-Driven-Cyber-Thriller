@@ -35,6 +35,9 @@ public class BackgroundManager : MonoBehaviour
     public static BackgroundManager Instance { get; private set; }
 
     private Image current;
+
+    /// <summary>Name of the background on screen (empty = none). Used by save files.</summary>
+    public string CurrentName { get; private set; } = "";
     private Image previous;
     private Coroutine fading;
 
@@ -66,6 +69,7 @@ public class BackgroundManager : MonoBehaviour
             previous.color = Color.white;
         }
         SetSprite(current, entry.image);
+        CurrentName = entry.name;
 
         if (fading != null) StopCoroutine(fading);
         fading = StartCoroutine(FadeIn());
@@ -77,6 +81,7 @@ public class BackgroundManager : MonoBehaviour
         if (fading != null) StopCoroutine(fading);
         current.enabled = false;
         previous.enabled = false;
+        CurrentName = "";
     }
 
     private IEnumerator FadeIn()

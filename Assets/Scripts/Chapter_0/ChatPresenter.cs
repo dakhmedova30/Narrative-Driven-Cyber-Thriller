@@ -23,15 +23,15 @@ public class ChatPresenter : DialoguePresenterBase
         if (chat == null)   // not an MHM node: log it so the story keeps moving
         {
             Debug.Log($"[no chat app] {who}: {text}");
-            await YarnTask.Delay(600);
+            await DialoguePlayback.Wait(0.6f);
             return;
         }
 
         bool isPlayer = (who == playerName);
-        if (!isPlayer) { lastNpc = who; await YarnTask.Delay(npcDelayMs); }
+        if (!isPlayer) { lastNpc = who; await DialoguePlayback.Wait(npcDelayMs / 1000f); }
 
         chat.AddMessage(lastNpc, who, DateTime.Now.ToString("hh:mm tt"), text, isPlayer);
-        await YarnTask.Delay(400);
+        await DialoguePlayback.Wait(0.4f);
     }
 
     public override async YarnTask<DialogueOption?> RunOptionsAsync(
