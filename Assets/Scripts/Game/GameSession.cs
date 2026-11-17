@@ -162,9 +162,11 @@ public class GameSession : MonoBehaviour
             linePresenters.AddRange(presenters.OfType<LinePresenter>());
         }
 
-        lineAdvancers.AddRange(StateCapture.All<LineAdvancer>(scene));
+        foreach (LineAdvancer advancer in StateCapture.All<LineAdvancer>(scene))
+            if (!lineAdvancers.Contains(advancer)) lineAdvancers.Add(advancer);
         foreach (var keys in StateCapture.All<Yarn.Unity.LineAdvancerInput.KeyCodes>(scene))
         {
+            if (lineAdvancers.Contains(keys)) continue;
             lineAdvancers.Add(keys);
             // Yarn's template uses Esc for "next line", which would fire together with the pause menu.
             if (keys.nextLineKeyCode == KeyCode.Escape) keys.nextLineKeyCode = KeyCode.None;
@@ -225,8 +227,26 @@ public class GameSession : MonoBehaviour
     // Update: play time, hotkeys, text speed
     // ------------------------------------------------------------------
 
+    private float rescanTimer;
+
+    // Safety net: also hook runners the scene-loaded event missed (the first scene in the editor,
+    // or dialogue systems spawned later). Already-hooked runners are skipped.
+    private void Start()
+    {
+        Scene active = SceneManager.GetActiveScene();
+        IsOnTitle = StateCapture.Find<TitleScreen>(active) != null;
+        HookScene(active);
+    }
+
     private void Update()
     {
+        rescanTimer -= Time.unscaledDeltaTime;
+        if (rescanTimer <= 0f && !IsLoading)
+        {
+            rescanTimer = 0.5f;
+            HookScene(SceneManager.GetActiveScene());
+        }
+
         if (!IsOnTitle && !IsPaused && !IsBusy) PlayTime += Time.unscaledDeltaTime;
 
         if (autosavePending && Time.unscaledTime - lastAutosave >= AutosaveMinInterval) RequestAutosave();
