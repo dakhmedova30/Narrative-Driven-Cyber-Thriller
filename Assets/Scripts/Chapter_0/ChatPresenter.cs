@@ -6,7 +6,8 @@ using Yarn.Unity;
 public class ChatPresenter : DialoguePresenterBase
 {
     public ChatAppRouter router;
-    public string playerName = "Max";
+    public UserProfileView profile;           // drag the user profile here
+    string PlayerName => profile != null ? profile.username : "Sage";
     public int npcDelayMs = 900;
     public string linkUrl = "jx://transmigrate/0x7F3A";
 
@@ -32,7 +33,7 @@ public class ChatPresenter : DialoguePresenterBase
             return;
         }
 
-        bool isPlayer = (who == playerName);
+        bool isPlayer = (who == PlayerName);
         if (!isPlayer) { lastNpc = who; await DialoguePlayback.Wait(npcDelayMs / 1000f); }
 
         chat.AddMessage(lastNpc, who, DateTime.Now.ToString("hh:mm tt"), text, isPlayer);
@@ -59,7 +60,7 @@ public class ChatPresenter : DialoguePresenterBase
         chat.HideOptions();
         chat.sendPressed = false;
 
-        chat.AddMessage(lastNpc, playerName, DateTime.Now.ToString("hh:mm tt"),
+        chat.AddMessage(lastNpc, PlayerName, DateTime.Now.ToString("hh:mm tt"),
                         options[picked].Line.TextWithoutCharacterName.Text, true);
         return options[picked];
     }
