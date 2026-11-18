@@ -119,6 +119,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &56398856 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5082085291892037246, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+  m_PrefabInstance: {fileID: 328329662}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5893a37aea557c4468fc7c6fad034ad3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UserProfileView
 --- !u!1 &269758811
 GameObject:
   m_ObjectHideFlags: 0
@@ -302,6 +313,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2251008229868527290, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -4344134265009043279, guid: c89875e5c353c4240bb44213b8434150, type: 3}
     - target: {fileID: 2399851007236227183, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -542,6 +557,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5082085291892037246, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+      propertyPath: avatar
+      value: 
+      objectReference: {fileID: 1819455306}
+    - target: {fileID: 5181599076850537712, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5181599076850537712, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -4344134265009043279, guid: c89875e5c353c4240bb44213b8434150, type: 3}
     - target: {fileID: 5378507018869375400, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -682,6 +709,18 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8592566025880062489, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+      propertyPath: headerAvatar
+      value: 
+      objectReference: {fileID: 1062023947}
+    - target: {fileID: 8592566025880062489, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+      propertyPath: playerAvatar
+      value: 
+      objectReference: {fileID: -4344134265009043279, guid: c89875e5c353c4240bb44213b8434150, type: 3}
+    - target: {fileID: 8592566025880062489, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+      propertyPath: playerProfile
+      value: 
+      objectReference: {fileID: 56398856}
     - target: {fileID: 8595392291081972045, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -704,8 +743,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9065274447993746725, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
       propertyPath: startingFriends.Array.size
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 9065274447993746725, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+      propertyPath: startingFriends.Array.data[0].avatar
+      value: 
+      objectReference: {fileID: -6544398813836675474, guid: f026092f4e88480449f69b60ba4f998f, type: 3}
+    - target: {fileID: 9065274447993746725, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+      propertyPath: startingFriends.Array.data[1].avatar
+      value: 
+      objectReference: {fileID: -4344134265009043279, guid: c89875e5c353c4240bb44213b8434150, type: 3}
+    - target: {fileID: 9065274447993746725, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+      propertyPath: startingFriends.Array.data[2].avatar
+      value: 
+      objectReference: {fileID: -4344134265009043279, guid: c89875e5c353c4240bb44213b8434150, type: 3}
     - target: {fileID: 9065274447993746725, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
       propertyPath: startingFriends.Array.data[0].username
       value: Skye
@@ -2438,6 +2489,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3126979435172447874, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 3673885934715706329, guid: ca261632009ab0e4cba38bf2ee3f10b9, type: 3}
     - target: {fileID: 3195142118452041021, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4289101692
@@ -4111,6 +4166,10 @@ PrefabInstance:
       value: Skye
       objectReference: {fileID: 0}
     - target: {fileID: 6853850592272878106, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
+      propertyPath: contacts.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853850592272878106, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
       propertyPath: contacts.Array.data[0].name
       value: Skye
       objectReference: {fileID: 0}
@@ -4118,6 +4177,10 @@ PrefabInstance:
       propertyPath: contacts.Array.data[1].name
       value: Max
       objectReference: {fileID: 0}
+    - target: {fileID: 6853850592272878106, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
+      propertyPath: contacts.Array.data[0].avatar
+      value: 
+      objectReference: {fileID: 3673885934715706329, guid: ca261632009ab0e4cba38bf2ee3f10b9, type: 3}
     - target: {fileID: 6853850592272878106, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
       propertyPath: contacts.Array.data[0].handle
       value: "@skye.l  \xB7  ID 0x7F3A"
@@ -4129,6 +4192,10 @@ PrefabInstance:
     - target: {fileID: 6853850592272878106, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
       propertyPath: contacts.Array.data[1].handle
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853850592272878106, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
+      propertyPath: contacts.Array.data[0].presence
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6856691560757493404, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
       propertyPath: m_fontColor32.rgba
@@ -5067,6 +5134,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dd50f871a60b4bbe88a71d308b2613f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1062023947 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5181599076850537712, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+  m_PrefabInstance: {fileID: 328329662}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1 &1110523258
 GameObject:
   m_ObjectHideFlags: 0
@@ -5259,6 +5337,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61503eb6a998a4af68e0dcbec4aad8cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1819455306 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2251008229868527290, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
+  m_PrefabInstance: {fileID: 328329662}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1 &1946548159 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1764103366212465704, guid: 71c83c1079ee971448ecd6ee69bff0f4, type: 3}

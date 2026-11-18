@@ -48,4 +48,9 @@ public class FriendView : MonoBehaviour
     }
 
     public void SetStatus(Presence p) { status.Set(p); }
+
+    public void SetAvatar(Sprite pic)
+    {
+        if (pic != null) avatar.sprite = pic;
+    }
 }

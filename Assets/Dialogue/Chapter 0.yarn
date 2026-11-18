@@ -214,32 +214,24 @@ Sage: But this isn't how I left it. My stuff's all moved around.
 ===
 
 title: C0_CheckJaycord
-tags: Jaycord face
----
-<<camera zoom monitor_2027>>
-<<jaycord_presence Skye offline>>
-<<jaycord_status "LAST ONLINE 8 YEARS AGO">>
-
-Sage: MHM is gone. It's... Jaycord?
-
-<<jump C0_JaycordMax>>
-===
-
-title: C0_JaycordMax
 tags: Jaycord
 ---
+<<camera zoom monitor_2027>>
 <<jaycord_open Skye>>
-
-System: No message history found.
-Skye: See what's next #link
-
+<<jaycord_presence Skye offline>>
+<<jaycord_status "LAST ONLINE 8 YEARS AGO">>
+Skye: link #link #history #linkonly
 <<jump C0_JaycordReact>>
 ===
+
 
 title: C0_JaycordReact
 tags: Jaycord face
 ---
+Sage: MHM is gone. It's... Jaycord?
 Sage: "Last online: 8 years ago"? That can't be right. We were just talking.
+
+<<jaycord_open Skye>>
 Sage: Our chat history... it's gone.
 Sage: Why is the link still here?
 <<jump C0_Knock>>

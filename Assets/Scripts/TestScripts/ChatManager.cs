@@ -18,13 +18,6 @@ public class ChatManager : MonoBehaviour
     public Transform content;
     public ScrollRect scrollRect;
 
-    // public void AddMessage(string who, string time, string body, bool isPlayer = false)
-    // {
-    //     MessageView msg = Instantiate(messagePrefab, content);
-    //     msg.Setup(who, time, body, isPlayer);
-    //     StartCoroutine(ScrollToBottom());
-    // }
-
     Dictionary<string, int> unread = new Dictionary<string, int>();
     Dictionary<string, string> preview = new Dictionary<string, string>();
     public event System.Action<string, string, int> RoomUpdated;   // room, preview, unread
@@ -35,6 +28,14 @@ public class ChatManager : MonoBehaviour
     public TMP_Text headerName;    // the NPC name in the chat header
     string currentRoom = "";
     Dictionary<string, List<StoredMessage>> history = new Dictionary<string, List<StoredMessage>>();
+
+    public Image headerAvatar;                      // the avatar in the chat header
+    public System.Func<string, Sprite> avatarLookup; // set by FriendListManager
+    public UserProfileView playerProfile;      // drag the user profile here
+
+    Sprite AvatarFor(StoredMessage m) =>
+        m.isPlayer ? (playerProfile != null ? playerProfile.Avatar : null)
+                : avatarLookup?.Invoke(m.who);
 
     public void AddMessage(string room, string who, string time, string body, bool isPlayer = false)
     {
@@ -59,13 +60,17 @@ public class ChatManager : MonoBehaviour
     void SpawnBubble(StoredMessage m)
     {
         MessageView msg = Instantiate(messagePrefab, content);
-        msg.Setup(m.who, m.time, m.body, m.isPlayer);
+        msg.Setup(m.who, m.time, m.body, m.isPlayer, AvatarFor(m));   // changed
     }
 
     public void OpenRoom(string room)
     {
         currentRoom = room;
-        if (headerName != null) headerName.text = room;
+        if (headerAvatar != null)
+        {
+            var s = avatarLookup?.Invoke(room);
+            if (s != null) headerAvatar.sprite = s;
+        }
 
         foreach (Transform child in content) Destroy(child.gameObject);
 

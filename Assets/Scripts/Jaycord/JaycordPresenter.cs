@@ -241,8 +241,10 @@ public class JaycordPresenter : DialoguePresenterBase
 
         string speaker = line.CharacterName ?? "";
         string text = line.TextWithoutCharacterName.Text.Trim();
+        bool instant = HasTag(line, "history");   // NEW
+        bool linkOnly = HasTag(line, "linkonly");   // NEW
 
-        if (text.Length > 0)
+        if (text.Length > 0 && !linkOnly)            // changed
         {
             if (speaker.Length == 0 || systemSpeakers.Contains(speaker))
             {
@@ -250,20 +252,22 @@ public class JaycordPresenter : DialoguePresenterBase
             }
             else if (speaker == playerName)
             {
-                await PlayerSends(text);
+                if (!instant) await PlayerSends(text);          
                 Append(Message(playerName, text));
             }
             else
             {
-                // The other side types for a while, then the message arrives (even if you're in another chat).
-                typingSpeaker = speaker;
-                if (IsViewingActiveChat) ShowTypingIndicator();
-                await Wait(Mathf.Clamp(typingBase + text.Length * typingPerCharacter, typingMin, typingMax));
-                typingSpeaker = null;
-                typingIndicator.Hide();
+                if (!instant)                                    
+                {
+                    typingSpeaker = speaker;
+                    if (IsViewingActiveChat) ShowTypingIndicator();
+                    await Wait(Mathf.Clamp(typingBase + text.Length * typingPerCharacter, typingMin, typingMax));
+                    typingSpeaker = null;
+                    typingIndicator.Hide();
+                }
                 lastOtherSpeaker = speaker;
                 Append(Message(speaker, text));
-                PlaySound(receiveSound);
+                if (!instant) PlaySound(receiveSound);           
             }
         }
 
@@ -274,10 +278,10 @@ public class JaycordPresenter : DialoguePresenterBase
                 kind = JaycordRecord.Kind.Link, sender = speaker, title = linkTitle, url = linkUrl,
             };
             Append(record);
-            if (linkWaitsForClick) await WaitUntilLinkOpened(record);
+            if (linkWaitsForClick && !instant) await WaitUntilLinkOpened(record);
         }
 
-        await Wait(pauseAfterMessage);
+        if (!instant) await Wait(pauseAfterMessage);
     }
 
     public override async YarnTask<DialogueOption?> RunOptionsAsync(DialogueOption[] options, LineCancellationToken token)
