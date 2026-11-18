@@ -708,7 +708,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9065274447993746725, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
       propertyPath: startingFriends.Array.data[0].username
-      value: Max
+      value: Skye
       objectReference: {fileID: 0}
     - target: {fileID: 9065274447993746725, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
       propertyPath: startingFriends.Array.data[1].presence
@@ -716,7 +716,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9065274447993746725, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
       propertyPath: startingFriends.Array.data[1].username
-      value: Skye
+      value: Max
       objectReference: {fileID: 0}
     - target: {fileID: 9065274447993746725, guid: f8df62665f9fedd4f898e39d53fa33af, type: 3}
       propertyPath: startingFriends.Array.data[2].presence
@@ -4106,6 +4106,30 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6853850592272878106, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
+      propertyPath: startContact
+      value: Skye
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853850592272878106, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
+      propertyPath: contacts.Array.data[0].name
+      value: Skye
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853850592272878106, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
+      propertyPath: contacts.Array.data[1].name
+      value: Max
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853850592272878106, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
+      propertyPath: contacts.Array.data[0].handle
+      value: "@skye.l  \xB7  ID 0x7F3A"
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853850592272878106, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
+      propertyPath: contacts.Array.data[0].status
+      value: Active 8 Years ago
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853850592272878106, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
+      propertyPath: contacts.Array.data[1].handle
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6856691560757493404, guid: 8a44b53216894aa49a7d4ed3ae1ee258, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4279043847
@@ -5115,7 +5139,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChatPresenter
   router: {fileID: 1326349583}
-  playerName: Skye
+  playerName: Sage
   npcDelayMs: 900
   linkUrl: jx://transmigrate/0x7F3A
 --- !u!4 &1294238028
