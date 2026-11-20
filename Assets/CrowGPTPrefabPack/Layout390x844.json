@@ -1,0 +1,215 @@
+{
+  "referenceResolution": {
+    "width": 390,
+    "height": 844,
+    "canvasScalerMatch": 0.5
+  },
+  "colors": {
+    "background": "#F7F3E9",
+    "cream": "#FFFDF7",
+    "starterPanel": "#E7EDDF",
+    "ink": "#202521",
+    "orange": "#D65A38",
+    "accentText": "#C95333",
+    "disabled": "#D8D6CC"
+  },
+  "sprites": {
+    "crow": {
+      "file": "Sprites/crow.png",
+      "imageType": "Simple",
+      "preserveAspect": true
+    },
+    "speechPanel": {
+      "file": "Sprites/panel_speech.png",
+      "imageType": "Sliced",
+      "border": [
+        64,
+        64,
+        64,
+        64
+      ]
+    },
+    "speechTail": {
+      "file": "Sprites/speech_tail.png",
+      "imageType": "Simple",
+      "preserveAspect": true
+    },
+    "selectedQuestionPanel": {
+      "file": "Sprites/panel_input.png",
+      "imageType": "Sliced",
+      "border": [
+        56,
+        56,
+        56,
+        56
+      ]
+    },
+    "questionCard": {
+      "file": "Sprites/panel_starters.png",
+      "imageType": "Sliced",
+      "border": [
+        48,
+        48,
+        48,
+        48
+      ]
+    },
+    "sendButton": {
+      "file": "Sprites/button_send.png",
+      "imageType": "Simple"
+    },
+    "outlineButton": {
+      "file": "Sprites/button_outline.png",
+      "imageType": "Simple"
+    },
+    "questionBadge": {
+      "file": "Sprites/badge_question.png",
+      "imageType": "Simple"
+    },
+    "background": {
+      "file": "Sprites/background_390x844.png",
+      "imageType": "Simple"
+    },
+    "sendButtonDisabled": {
+      "file": "Sprites/button_send_disabled.png",
+      "imageType": "Simple"
+    },
+    "drawerButton": {
+      "file": "Sprites/panel_drawer_button.png",
+      "imageType": "Sliced",
+      "border": [
+        32,
+        32,
+        32,
+        32
+      ]
+    },
+    "crowBadge": {
+      "file": "Sprites/badge_crow.png",
+      "imageType": "Simple"
+    },
+    "icons": {
+      "menu": "Sprites/icon_menu.png",
+      "close": "Sprites/icon_close.png",
+      "plus": "Sprites/icon_plus.png",
+      "arrow": "Sprites/icon_arrow.png",
+      "arrowDisabled": "Sprites/icon_arrow_disabled.png"
+    },
+    "phoneFrame": {
+      "file": "Sprites/phone_frame_470x944.png",
+      "imageType": "Simple",
+      "screenOpening": {
+        "x": 40,
+        "y": 50,
+        "width": 390,
+        "height": 844
+      }
+    }
+  },
+  "layout": {
+    "header": {
+      "top": 0,
+      "height": 64
+    },
+    "hero": {
+      "top": 64,
+      "height": 520
+    },
+    "crow": {
+      "anchor": "bottom-left",
+      "x": 39,
+      "y": 52,
+      "width": 304,
+      "height": 238
+    },
+    "speechGroup": {
+      "anchor": "top-right",
+      "x": -27,
+      "y": -36,
+      "width": 226,
+      "height": 150
+    },
+    "questionControls": {
+      "anchor": "bottom-center",
+      "x": 0,
+      "y": 38,
+      "width": 356,
+      "height": 209,
+      "spacing": 16
+    },
+    "selectedQuestion": {
+      "width": 356,
+      "height": 56
+    },
+    "questionCard": {
+      "width": 356,
+      "height": 137,
+      "rowHeight": 39
+    },
+    "speechPanel": {
+      "width": 226,
+      "height": 124,
+      "rotationDegrees": -1.2,
+      "shadow": [
+        5,
+        -6
+      ]
+    },
+    "composerShadow": [
+      4,
+      -5
+    ],
+    "drawer": {
+      "anchor": "left-stretch",
+      "width": 328,
+      "scrim": "#141A1661"
+    }
+  },
+  "questions": [
+    {
+      "shortcut": "1",
+      "question": "Who are you?"
+    },
+    {
+      "shortcut": "2",
+      "question": "What is an LLM?"
+    },
+    {
+      "shortcut": "3",
+      "question": "Why are you a crow?"
+    }
+  ],
+  "fonts": {
+    "handwritten": {
+      "file": "Fonts/PatrickHand-Regular.ttf",
+      "usage": "speech, selected question, question rows"
+    },
+    "ui": {
+      "file": "Fonts/DMSans-Variable.ttf",
+      "usage": "brand, badges, drawer"
+    }
+  },
+  "behavior": {
+    "thinkingDelaySeconds": 0.65,
+    "keyboardShortcuts": [
+      "Alpha1",
+      "Alpha2",
+      "Alpha3"
+    ],
+    "drawer": true,
+    "safeArea": true
+  },
+  "phonePreview": {
+    "referenceResolution": {
+      "width": 470,
+      "height": 944,
+      "canvasScalerMatch": 0.5
+    },
+    "appViewport": {
+      "width": 390,
+      "height": 844
+    },
+    "interactive": true,
+    "prefab": "Generated/CrowGPTPhonePreview.prefab"
+  }
+}
