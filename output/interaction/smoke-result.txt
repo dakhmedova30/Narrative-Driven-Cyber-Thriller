@@ -1,0 +1,1 @@
+PASS: distance gate, pause-menu gate, locked prerequisite, cancel/reopen, player movement lock/release, inspection pause, keyboard E/Backspace input, one-shot, Meter 50 -> 55 -> 45 -> 53, four-step flow, corridor transition.
