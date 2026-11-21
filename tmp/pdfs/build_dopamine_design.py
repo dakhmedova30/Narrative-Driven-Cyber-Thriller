@@ -1,0 +1,225 @@
+from pathlib import Path
+from html import escape
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib import colors
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.enums import TA_LEFT
+import pypdfium2 as pdfium
+
+ROOT = Path(__file__).resolve().parents[2]
+OUT = ROOT / 'output/pdf'
+OUT.mkdir(parents=True, exist_ok=True)
+pdfmetrics.registerFont(TTFont('CN', 'C:/Windows/Fonts/msyh.ttc'))
+pdfmetrics.registerFont(TTFont('CNBold', 'C:/Windows/Fonts/msyhbd.ttc'))
+styles = {
+ 'title': ParagraphStyle('title',fontName='CNBold',fontSize=23,leading=34,spaceAfter=18),
+ 'h': ParagraphStyle('h',fontName='CNBold',fontSize=15,leading=23,spaceBefore=12,spaceAfter=9),
+ 'sub': ParagraphStyle('sub',fontName='CNBold',fontSize=11.5,leading=18,spaceBefore=9,spaceAfter=5),
+ 'p': ParagraphStyle('p',fontName='CN',fontSize=10,leading=17,spaceAfter=8,wordWrap='CJK'),
+ 'small': ParagraphStyle('small',fontName='CN',fontSize=8.7,leading=14,spaceAfter=6,wordWrap='CJK'),
+}
+story=[]
+html=[]
+def para(s,kind='p'):
+    story.append(Paragraph(s,styles[kind]))
+    tag={'title':'h1','h':'h2','sub':'h3'}.get(kind,'p')
+    html.append(f'<{tag}>{s}</{tag}>')
+def page(title):
+    if story: story.append(PageBreak()); html.append('</section><section>')
+    para(title,'title' if not story else 'h')
+def table(headers, rows, widths):
+    data=[[Paragraph(escape(str(c)),styles['small']) for c in r] for r in [headers]+rows]
+    t=Table(data,colWidths=widths,repeatRows=1,hAlign='LEFT')
+    t.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#e7eef3')),('GRID',(0,0),(-1,-1),.5,colors.HexColor('#d9d9d9')),('VALIGN',(0,0),(-1,-1),'MIDDLE'),('LEFTPADDING',(0,0),(-1,-1),9),('RIGHTPADDING',(0,0),(-1,-1),9),('TOPPADDING',(0,0),(-1,-1),7),('BOTTOMPADDING',(0,0),(-1,-1),7)]))
+    story.extend([t,Spacer(1,10)])
+    html.append('<table><thead><tr>'+''.join('<th>'+escape(c)+'</th>' for c in headers)+'</tr></thead><tbody>'+''.join('<tr>'+''.join('<td>'+escape(str(c))+'</td>' for c in r)+'</tr>' for r in rows)+'</tbody></table>')
+def link(label,url): return f'<a href="{escape(url,quote=True)}" color="#165d90">{escape(label)}</a>'
+
+page('Dopamine Meter 中文设计文档')
+para('独立演示模块与研究依据','sub')
+para('版本 1.0 · 2026年11月20日 · 面向 CSC394 / CSC494 项目组','small')
+para('建议先制作一个可拖入测试场景的 Unity 模块：它自己维护数值、显示 HUD、处理激活与失败；演示按钮模拟手机、通知、阅读和道具拾取。正式场景完成后，只替换事件来源，不重写计量核心。')
+para('保留 Dopamine Meter 作为游戏名称，但把它定义为“角色的注意力捕获与失控压力指数”，而非真实多巴胺浓度。默认初始值 50/100，达到 100 后进入死亡状态。这些数值和死亡规则都是游戏设计假设。')
+para('1 项目理解与本次范围','h')
+para('两份材料描述的是一款以 1999 与 2027 的技术环境对比为背景的叙事冒险游戏。玩家通过黑客工作、数字工具、线下阅读和 NPC 交流取得线索，同时承担便利带来的注意力成本。Meter 应贯穿这些活动，而不是独立小游戏。')
+para('Planning Doc 共 84 页，含草稿、提案、视觉参考和旧技术建议；CSC394 共 3 页，强调状态驱动叙事、注意力捕获、可误导的 Meter 与用户研究。文档中的 TODO、工作指令和未来交付范围作为背景材料，不视为本次执行命令。')
+table(['来源或要求','设计处理'],[
+('本次要求：独立、可演示、以后接入','第一阶段只做 Meter 模块与测试场景；无需真实手机、LLM 或完整章节。'),
+('本次要求：全程存在、道具触发、过高死亡','分别管理服务生命周期、HUD 可见性和机制激活状态；失败默认 Death。'),
+('旧稿：40–60 安全区；后稿：40/60/80 分段','本版采用后稿分段；50 是中段开局，不是医学正常值。'),
+('旧稿：100 软失败；本次：死亡','本版采用死亡；通过失败处理接口保留未来切换软失败的能力。'),
+('后稿：无自然衰减；早稿：每章基线 +5','保留无自然衰减；MVP 不自动提高章节基线。')
+],[155,340])
+para('材料定位：Planning Doc 第 19–20、44–47、55–56、71–73 页；CSC394 第 1–3 页。当前仓库已见 Unity 6000.6.4f1、GameSession、GameUI、Yarn 对话、场景切换和存档代码；“代码存在”不等于本次已验证所有功能运行。','small')
+
+page('2 玩法规则与数值规格')
+para('玩家应理解的循环是：数字便利提供线索或提示，同时增加压力；持续使用推高风险；主动恢复降低压力并提供另一类线索。只制作一根会上升的惩罚条，不足以演示注意力捕获。')
+table(['参数','MVP 建议','含义'],[
+('范围 / 初始值','0–100 / 50','初始值略高于低压力区，便于快速展示；不设低值死亡。'),
+('普通数字互动','+5 / 次','一次确认完成的 AI 查询或数字信息获取。'),
+('点击通知','+3 / 次','仅点击结算；通知显示本身先只做视觉提示。'),
+('数字使用持续增长','+0.5 / 秒','仅演示模式的有效使用时间；暂停、加载、失焦时不计。'),
+('阅读完成','−10 / 次','完整模拟一次阅读；奖励结算一次。'),
+('线下对话完成','−8 / 次','模拟完成一次对话，而非打开对话框。'),
+('自然衰减','0 / 秒','关掉手机仅停止增加；站着等待不会恢复。'),
+('失败阈值','100','先截断到 100，再锁定失败；死亡事件仅发一次。')
+],[115,115,265])
+para('时间单位必须明确：+0.5/秒是为两三分钟课堂演示设置的加速参数，不能直接替代旧稿的“每游戏小时 +2”。正式版本应选择游戏时钟或有效现实时间中的一种，并独立调参。开着数字使用模式同时触发一次查询会同时产生时间成本与事件成本，必须在说明中告知。')
+table(['真实数值 A','状态','MVP 展示'],[
+('0 ≤ A < 40','稳定','数值、稳定标签；正常交互。'),
+('40 ≤ A < 60','吸引','提示“快捷信息可用”；模拟按钮获得一条有效线索。'),
+('60 ≤ A < 80','干扰','黄色警告与通知提示，不夺走按钮焦点。'),
+('80 ≤ A < 100','危险','明显文字警告；仍可使用恢复操作。'),
+('A = 100','死亡','失败层覆盖；禁用游戏操作；允许重新开始 Demo。')
+],[105,70,320])
+para('计算：A_next = clamp(A + eventDelta + activeUseRate × dt, 0, 100)。MVP 只模拟一个持续数字使用源，不叠加重复开启；恢复事件与持续增长按固定顺序处理：先按时间戳推进计时，再处理事件，任一步触及 100 即锁定失败。死亡后恢复事件不能复活角色。','small')
+
+page('3 全局生命周期与界面')
+para('把三个问题分开','sub')
+para('服务存在：进入游戏会话后建立唯一 Meter 服务，跨场景保留。HUD 显示：挂在独立的屏幕空间 Canvas 中，不是手机界面的子物体。机制激活：拿到指定道具才开始接收数值事件。这三者互不等价。')
+table(['生命周期','数值与界面行为'],[
+('Dormant 待机','HUD 显示“Dopamine Meter · 待机”；可展示预设 50，但标注“未计量”。忽略普通增减与计时。'),
+('Activate 激活','道具拾取调用 Activate；第一次采用初始值 50。重复激活不重置、不加分、不重新发激活事件。'),
+('Active 运行','数字事件和恢复事件生效；数值与分段同步广播。'),
+('Suspended 暂停条件','不是新生命状态；暂停、加载、失焦期间挂起计时并拒绝普通事件，不补算离开时长。'),
+('Dead 死亡','保持真实值 100；发出一次失败事件；普通输入无效。'),
+('Reset 新会话','清空计时、去重记录和失败锁；回到待机 50。仅测试面板可选择直接激活。')
+],[120,375])
+para('“全程显示”的默认范围是可玩游戏会话，切场景、对话和打开手机都保留；暂停时可见且冻结。标题页可显示待机组件，是否隐藏由宿主配置。若需要严格从启动到退出都显示，只改可见策略；不改计量逻辑。')
+para('HUD 结构','sub')
+para('固定屏幕角落显示名称、数值（如 65 / 100）、填充条、状态文字与最近原因（如“读取 AI 提示 +5”）。位置通过 RectTransform 锚点配置，可放在任意角落。采用深色背景、清晰浅色文字；状态同时使用文字和图形，避免仅依赖红绿。')
+para('使用 CanvasScaler 与安全边距适配窗口。普通 HUD 的装饰元素关闭 Raycast Target，避免挡住场景交互；死亡层才接管输入。减少动态效果模式保留静态警告，不闪烁、不强制镜头移动。')
+para('死亡的叙事解释','sub')
+para('可将死亡表现为虚构 RAVEN 神经接口的致命过载，但这属于新提议，不能写成已定剧情。Demo 只需“压力达到上限，角色死亡”的状态说明。设计保留 Death / SoftFail 策略，便于团队未来决定结局形式；核心不直接销毁玩家对象或切换章节。')
+
+page('4 模块结构与连接契约')
+para('采用“纯逻辑核心 + Unity 宿主 + UI + 可选适配器”。像插件一样可搬移的是完整模块目录及其资源；不能承诺跨任意引擎直接使用。最初不必做成复杂的 UPM 包。')
+table(['建议组件','责任与边界'],[
+('MeterModel','纯 C# 状态与规则；不引用场景名、Yarn、玩家、库存或 GameSession。'),
+('MeterConfig','ScriptableObject 保存初始值、阈值、事件增减和计时速率；运行态不可写回配置资产。'),
+('MeterService','MonoBehaviour 驱动时钟与生命周期；持有唯一模型；跨场景保留并防重复实例。'),
+('MeterHUD','订阅快照、数值和状态事件；只呈现，不参与死亡计算。'),
+('DemoControls / DemoFailureHandler','按钮模拟事件；本地失败遮罩和重置，不依赖实际角色。'),
+('GameSession / Yarn / Save 适配器','未来才接入；把已有系统事件翻译成 Meter 契约。')
+],[165,330])
+para('建议接口形状','sub')
+para('Activate(sourceId)；ApplyEvent(eventType, occurrenceId)；SetDigitalUse(sourceId, enabled)；Tick(dt)；SetSuspended(reason, enabled)；ResetSession()；CaptureState()；RestoreState(snapshot)。这是待实现契约，不是已有仓库 API。','small')
+para('输出事件：Changed(snapshot, cause)、BandChanged(oldBand, newBand)、Failed(reason)。Changed 包含 actualValue、displayedValue、lifeState、band、原因和事件序号。UI 创建时先读快照，再监听变化；销毁时取消订阅。失败订阅者读取快照也能发现已死亡，不依赖恰好听到一次事件。')
+para('事件去重与失败优先级','sub')
+para('occurrenceId 表示“一次实际发生的行为”，如 quest01.book02.readComplete。重复提交同一 occurrenceId 不重复结算；合法的第二次互动使用新 ID。激活与持续模式开关本身幂等。去重记录按会话维护，存档恢复时同时恢复；同一帧多个事件按序处理，死亡后忽略剩余普通事件。')
+para('跨场景持久化','sub')
+para('提供 MeterRoot.prefab，根节点持有 Service 和独立 HUD，并使用 DontDestroyOnLoad。新场景误放第二个 Root 时销毁整个副本，不能留下第二张 HUD。初版仅显式放入 Demo，避免自动进入主游戏；正式接入由唯一启动入口创建一次。')
+para('建议目录：Assets/DopamineMeter/ 下放 Runtime、UI、Config、Demo；Adapters 单独放在项目侧。Core 与 Unity 层分程序集，Yarn 适配器不放入 Core，因此复制模块到没有 Yarn 的 Unity 测试项目时仍能运行。','small')
+
+page('5 未来接入与存档语义')
+para('仓库目前的 GameSession 在首场景前自动创建并跨场景保留，还拥有标题、暂停、加载与章节状态。因此正式整合应复用它提供的会话上下文；不另建一套相互竞争的游戏流程管理器。')
+table(['现有位置或系统','未来连接方式'],[
+('Assets/Scripts/Game/GameSession.cs','在启动、新游戏、暂停、加载、回标题的明确路径调用适配器；只有 NewGame 成功开始新会话时才重置 Meter。'),
+('Assets/Scripts/Scene/SceneTransitioner.cs','加载期间挂起计时；切换完成恢复。切场景不重置数值，也不重复激活。'),
+('道具与互动系统','确认获得设备后 Activate；真实互动完成后 ApplyEvent。普通道具不默认增加压力。'),
+('Yarn 对话','未来注册如 <<meter_event ai_query event01>> 的命令，由桥接层校验事件类型和唯一标识。'),
+('Assets/Scripts/Save/SaveData.cs 与 StateCapture.cs','新增有版本的 Meter 快照，随同一检查点保存和恢复；兼容旧存档。'),
+('未来玩家 / 结局控制器','订阅 Failed；禁用移动、停止对话推进、展示结局。Demo 中用模拟处理器替代。')
+],[220,275])
+para('存档字段与加载顺序','sub')
+para('快照至少保存 schemaVersion、hasMeterState、actualValue、lifeState、displayMode、displayBias、已消费的一次性事件 ID。默认不保存临时“正在使用手机”的状态；加载后由场景恢复界面，再显式恢复持续使用源。')
+para('加载顺序：挂起 → 恢复状态与去重记录 → 建立视图并同步快照 → 恢复互动来源 → 解除挂起。Restore 不当作新互动，不重新增加压力；若载入死亡状态，恢复失败表现但不重复记录一次新死亡。旧存档缺失 Meter 时回到待机 50，由已知剧情激活标志决定是否激活；不要凭空推测玩家已拿到设备。')
+para('特别注意现有对话存档会回到节点起点。Meter 数值和事件 ID 应取同一节点起点快照；不能把节点结束数值配上节点起点对话，否则重播命令可能再次计量。')
+para('真实值与误导显示','sub')
+para('始终只维护一个权威真实值 A。默认显示 D=A；扩展模式可用 D=clamp(A−bias, 0, 100)，例如 bias=20。分段、死亡和行为效果始终依据 A。测试面板同时展示 A/D，玩家 HUD 只显示 D。误导模式预留但默认关闭，不影响第一阶段完成。')
+para('后续研究若启用欺骗，需有可察觉线索，例如“同步延迟”或真实危险症状与数字不一致。设计成可被发现的不可靠界面；不能悄悄误杀，再把困惑当作学习成果。')
+
+page('6 独立 Demo 与验收')
+para('只需一个空测试场景，或两个没有正式美术的测试场景。场景中放 MeterRoot、演示面板和一个代表玩家存活的状态标签。现有仓库会自动启动 GameSession，所以严格的零宿主依赖验证应把模块复制到干净 Unity 测试项目；仓库内演示只是“不接主线事件”。')
+para('演示面板','sub')
+para('按钮：模拟获得设备、数字互动 +5、点击通知 +3、开始/停止数字使用、阅读完成 −10、线下对话 −8、暂停、切换测试场景、重新开始。面板显示事件日志；“直接设为 95”等调试操作明确标为开发者控制，不暴露给正式玩家。')
+para('两三分钟可重复演示脚本','sub')
+para('① 开始为待机 50；点击数字互动无效。② 模拟拿到设备，激活为 50。③ 数字互动三次达到 65，显示干扰状态并交付模拟线索。④ 阅读一次降到 55。⑤ 数字互动五次达到 80，显示危险。⑥ 切换测试场景，数值仍为 80。⑦ 数字互动四次达到 100，角色状态变为死亡；恢复按钮不复活。⑧ 重新开始，回到待机 50。此脚本关闭持续使用，保证数值可核对。')
+table(['检查','通过条件'],[
+('独立性','不需要玩家、手机、LLM、Yarn 或真实剧情即可完成全部演示。'),
+('边界与阈值','39→40、59→60、79→80、99→100 正确；负数截断到 0；超上限截断到 100。'),
+('重复事件','重复激活不重置；同 occurrenceId 只生效一次；多次越界只发一次死亡事件。'),
+('时钟','50 开始持续使用 10 秒变 55；暂停期间不变；恢复后不补算暂停时间。'),
+('状态一致','死亡后拒绝普通事件；Reset 清空死亡锁、去重与计时源。'),
+('跨场景 / UI','只有一个服务和一张 HUD；数值保留；HUD 不拦截无关点击。'),
+('存档接口','快照往返保留数值、激活和死亡状态；旧版本采用明确默认。'),
+('可访问性','状态不只靠颜色；放大文本不遮住数值；减少动态效果后仍能判断危险。')
+],[110,385])
+para('实现顺序：先核心与边界检查，再 HUD 与事件面板，再死亡和重置，再跨场景与快照，最后才做真实系统适配。验收目标是上述条件通过，而不是先完成所有章节。这份交付是设计与研究材料，尚未实现或运行 Unity Demo。','small')
+
+page('7 研究问题与评估设计')
+para('主研究问题','sub')
+para('在短篇叙事游戏中，把数字便利的注意力成本呈现为持续可见、具有后果的状态条，是否帮助玩家理解“便利与自主控制之间的取舍”？这比“游戏是否正确模拟人体多巴胺”更符合当前原型能测量的内容。')
+para('可检验假设','sub')
+para('H1：相比只有相同事件反馈、但没有持续 Meter 的版本，有 Meter 的玩家更能解释数字奖励、累积成本与恢复行动之间的关系。H2：在拥有真实收益的情况下，部分玩家会自愿使用数字便利，并在风险上升后改变选择。H2 只是行为模式，不代表他们成瘾。')
+para('可选 RQ2：当显示值低于真实值且有不一致线索时，玩家何时怀疑、依据什么判断界面不可信？先验证诚实 Meter 可理解，再单独测试欺骗；不要在第一次实验同时改变初始值、增长速率、提示和显示真实性。')
+para('建议流程','sub')
+para('先做 6–8 人形成性试测，寻找误解、死循环和操作问题；修改后冻结版本。正式比较采用新参与者随机分组，两组使用相同内容、成本、可用恢复机会与失败规则，仅改变持续 Meter 的呈现。所有组均收到公平的风险说明。正式样本量按主要指标和功效分析确定，小型课堂试测仅报告探索性结果。')
+table(['测量','做法与解释'],[
+('理解程度（主要）','前后各用等难度情境题；盲评其是否能解释奖励、累计成本、恢复和虚构数值，避免只记颜色阈值。'),
+('游戏内行为','记录自愿数字选择比例、首次主动恢复时机、警告后的选择变化、死亡与完成情况。强制数字事件另行标记。'),
+('体验与误解','分别询问便利感、自主控制感、挫败感；开放提问“你觉得这根条代表什么”。'),
+('误导发现（后续）','记录首次怀疑与确信的时间、依据和替代解释；不能只统计“是否发现”。')
+],[135,360])
+para('日志最少包括 sessionId、build/configVersion、事件序号、有效游玩时间、sourceId、cause、A_before/A_after、D、band、lifeState、是否强制。研究采集须经同意，采用本地匿名会话记录；不需要真实账号、真实聊天或生理测量。')
+para('允许结果不支持假设：玩家可能只学会避开红条，或觉得数字工具完全不值得用。前者说明教育表达不足，后者说明收益不足。报告效应与不确定性，不能把一轮试玩称为证明长期行为改变，也不能把问卷兴趣称为成瘾。')
+
+page('8 文献如何支持设计')
+para('以下五篇按用途选择。它们支持奖励学习、动机与注意力干扰的设计背景；没有任何一篇验证本游戏的 0–100 指数、50 初值、恢复扣分或死亡阈值。文献内容与设计推论分开列出。')
+para('Lindström 等 2021 社交奖励与参与','sub')
+para('研究内容：研究使用四个社交媒体数据集，涵盖 4,168 位用户、超过一百万条帖子，并辅以在线实验，考察点赞等奖励与发帖行为的关系。结果支持奖励学习对参与行为的解释。')
+para('设计用途：为“反馈可能强化下一次参与”提供直接背景。因此，数字按钮应给有效线索或认可反馈，随后显示压力成本。限制：参与行为不是临床成瘾诊断；研究也没有测量玩家脑内多巴胺。')
+para(link('论文全文与出版信息','https://www.nature.com/articles/s41467-020-19607-x')+' · '+link('作者提供的 PDF','https://amodiolab.org/wp-content/uploads/2020/09/Lindstro%CC%88m-et-al.-2021.pdf'),'small')
+para('Berridge 与 Robinson 2016 想要与喜欢','sub')
+para('研究内容：这篇理论综述区分 wanting（动机性的“想要”）与 liking（愉悦），并说明成瘾中的线索诱发追求可增强，而愉悦未必同步增强。多巴胺相关动机系统是其讨论核心。')
+para('设计用途：解释为什么角色可能在收益不再增加时仍倾向查看设备；有助于避免把 Meter 简化为快乐条。限制：主要基于成瘾理论与相关实验，不能直接把药物成瘾机制等同于所有社交媒体或 LLM 使用。')
+para(link('开放全文','https://pmc.ncbi.nlm.nih.gov/articles/PMC5171207/')+' · '+link('作者实验室 PDF','https://sites.lsa.umich.edu/berridge-lab/wp-content/uploads/sites/743/2019/10/2016-Berridge-Robinson-Liking-wanting-IS-theory-of-addiction-Am-Psychol.pdf'),'small')
+para('Stothart 等 2015 通知的注意力成本','sub')
+para('研究内容：在持续注意任务中比较来电、短信与无通知条件；即使不操作手机，通知也可能干扰表现。作者另指出短信组的初始差异使相关解释需谨慎。')
+para('设计用途：支持用通知打断任务、区分“收到通知”和“点击通知”。MVP 可先只表现中断，把数值增加绑定主动点击。限制：这是短时注意实验，并未证明临床成瘾，也不能推出固定扣分或多巴胺变化。')
+para(link('作者论文页面与下载入口','https://carystothart.com/publications/attentional-cost-cell-phone-notification/')+' · '+link('DOI','https://doi.org/10.1037/xhp0000100'),'small')
+
+page('9 文献边界与论文表述')
+para('Sherman 等 2016 点赞与同伴影响','sub')
+para('研究内容：模拟 Instagram 的实验招募 34 名 13–18 岁青少年，32 名纳入 fMRI 分析。高点赞图片更容易被点赞；观看自己的高点赞图片时，奖励相关区域表现出更强活动。')
+para('设计用途：为“社交认可也是奖励”提供依据，可用于模拟被认可的即时反馈。限制：小型青少年实验不能泛化为所有成年人；fMRI 信号不是多巴胺浓度，也不是成瘾证明。')
+para(link('开放全文','https://pmc.ncbi.nlm.nih.gov/articles/PMC5387999/')+' · '+link('大学存档','https://escholarship.org/uc/item/7307z67z'),'small')
+para('Schultz 等 1997 奖励预测与学习','sub')
+para('研究内容：联系灵长类多巴胺神经元活动与奖励预测误差，说明奖励及其预测线索如何参与学习。它提供的是神经活动与学习机制的解释，而非慢慢装满的快乐容器。')
+para('设计用途：支持把预期与反馈纳入后续扩展，例如“提示可能带来线索”的期待。限制：不能据此断言随机奖励必然成瘾，更不能把预测误差公式直接标为玩家的多巴胺浓度；MVP 无需实现强化学习模型。')
+para(link('作者机构摘要','https://www.gatsby.ucl.ac.uk/~dayan/papers/sdm97.html')+' · '+link('作者机构 PDF','https://fbri.vtc.vt.edu/content/dam/fbri_vtc_vt_edu/publications/montague-publications/SchultzDayanMontague1997Science.pdf'),'small')
+para('可用于 paper 的中文论证草稿','sub')
+para('既有研究表明，社交媒体参与可部分由奖励学习解释（Lindström et al., 2021），社交认可会影响青少年的行为及奖励相关神经活动（Sherman et al., 2016），而通知本身也可能干扰持续注意（Stothart et al., 2015）。同时，“想要”与“喜欢”的区分提示，持续追求并不必然意味着愉悦持续增加（Berridge &amp; Robinson, 2016）。据此，本项目将这些机制转译为叙事游戏中的注意力捕获指数，用于研究玩家如何理解数字便利与自主控制之间的取舍。')
+para('本系统是受研究启发的游戏抽象，并非生理或诊断模型。其初始值、事件权重、恢复规则及死亡阈值均由设计和试玩确定，不对应人体多巴胺浓度或医学风险。用户研究评估的是理解、游戏内选择与主观体验，而不是参与者是否产生临床成瘾。')
+para('目前仍没有被这些论文支持的主张','sub')
+para('“所有技术使用都会上瘾”“LLM 交流必然造成依赖”“阅读一次能降低十点多巴胺”“50 是正常人基线”“100 会致死”“暂停数字使用即可治疗成瘾”。如后续论文重点转向 AI 陪伴、迎合行为或长期心理影响，需要另做直接针对 LLM 的文献检索；本组文献不能替代那部分证据。')
+
+page('10 可直接使用的参考文献')
+para('APA 第 7 版格式。正文采用作者—年份引用；最终提交时按课程或期刊要求统一。DOI 链接可点击，全文入口见前两页。','small')
+refs=[
+('Berridge, K. C., &amp; Robinson, T. E. (2016). Liking, wanting, and the incentive-sensitization theory of addiction. <i>American Psychologist, 71</i>(8), 670–679.','https://doi.org/10.1037/amp0000059'),
+('Lindström, B., Bellander, M., Schultner, D. T., Chang, A., Tobler, P. N., &amp; Amodio, D. M. (2021). A computational reward learning account of social media engagement. <i>Nature Communications, 12</i>, Article 1311.','https://doi.org/10.1038/s41467-020-19607-x'),
+('Schultz, W., Dayan, P., &amp; Montague, P. R. (1997). A neural substrate of prediction and reward. <i>Science, 275</i>(5306), 1593–1599.','https://doi.org/10.1126/science.275.5306.1593'),
+('Sherman, L. E., Payton, A. A., Hernandez, L. M., Greenfield, P. M., &amp; Dapretto, M. (2016). The power of the like in adolescence: Effects of peer influence on neural and behavioral responses to social media. <i>Psychological Science, 27</i>(7), 1027–1035.','https://doi.org/10.1177/0956797616645673'),
+('Stothart, C., Mitchum, A., &amp; Yehnert, C. (2015). The attentional cost of receiving a cell phone notification. <i>Journal of Experimental Psychology: Human Perception and Performance, 41</i>(4), 893–897.','https://doi.org/10.1037/xhp0000100')]
+for r,u in refs: para(r+' '+link(u,u)); story.append(Spacer(1,8))
+para('项目材料与证据追溯','sub')
+para('CSC394_494 Planning Doc.pdf：第 13 页视觉参考；第 19–20 页初始数值草案；第 44–47、55–56、71–73 页玩法、模块和研究要求。CSC394.pdf：第 1 页研究定位，第 2 页独立机制与不可靠显示，第 3 页试玩与恢复行动的意义。页码均为 PDF 物理页码。','small')
+para('仓库核对位置：ProjectSettings/ProjectVersion.txt；Docs/GameFlow.md；Assets/Scripts/Game/GameSession.cs；Assets/Scripts/Game/GameFlowController.cs；Assets/Scripts/Save/SaveData.cs。本设计的适配器、Prefab、事件和新增快照字段均为建议，尚未写入现有游戏。','small')
+para('文献核对日期：2026年11月20日。上述链接指向论文、作者或机构来源；摘要不替代阅读全文。Lindström 等的出版社页面注明存在出版更正，正式引用与复核数据时以更新后的期刊版本为准。','small')
+
+def footer(c,doc):
+    c.saveState(); c.setFont('CN',8); c.setFillColor(colors.HexColor('#65717d'))
+    c.drawString(50,28,'Dopamine Meter  |  中文设计与研究依据  |  v1.0')
+    c.drawRightString(545,28,str(doc.page)); c.restoreState()
+pdfmetrics.registerFontFamily('CN',normal='CN',bold='CNBold',italic='CN',boldItalic='CNBold')
+doc=SimpleDocTemplate(str(OUT/'Dopamine_Meter_Design_ZH.pdf'),pagesize=(595.28,841.89),rightMargin=50,leftMargin=50,topMargin=42,bottomMargin=49,title='Dopamine Meter 中文设计文档',author='CSC394 / CSC494 Project Design')
+doc.build(story,onFirstPage=footer,onLaterPages=footer)
+html_text='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>Dopamine Meter 中文设计文档</title><style>body{max-width:900px;margin:40px auto;padding:0 24px;font:16px/1.85 "Microsoft YaHei",sans-serif;color:#17212b}h1,h2,h3{color:#000;line-height:1.4}section{margin-bottom:60px}table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #d9d9d9;padding:10px;text-align:left}th{background:#e7eef3}a{color:#165d90} @media print{section{break-before:page}body{margin:0}}</style><body><section>'''+''.join(html)+'</section></body></html>'
+(OUT/'Dopamine_Meter_Design_ZH.html').write_text(html_text,encoding='utf-8')
+d=pdfium.PdfDocument(str(OUT/'Dopamine_Meter_Design_ZH.pdf'))
+qa=ROOT/'tmp/pdfs/design_qa'; qa.mkdir(exist_ok=True)
+for i,p in enumerate(d): p.render(scale=1.25).to_pil().save(qa/f'page-{i+1}.png')
+print('PDF pages:',len(d)); print(OUT)
