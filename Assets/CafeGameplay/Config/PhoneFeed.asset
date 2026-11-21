@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cbfbdce28eadf641a373602e5014af5, type: 3}
+  m_Name: PhoneFeed
+  m_EditorClassIdentifier: Assembly-CSharp::CafeGameplay.PhoneContent
+  notificationInterval: 8
+  maxUnread: 4
+  lookDownSeconds: 0.55
+  notificationSound: {fileID: 8300000, guid: f192a6cc026543e438228641620f304b, type: 3}
+  posts:
+  - id: max-message
+    source: MAX
+    title: Are you still there?
+    advertisement: 0
+    body: I found something about the delivery. Call me when you have a moment.
+    meterIncrease: 3
+  - id: ad-focus
+    source: FOCUS+
+    title: Make every minute count.
+    advertisement: 1
+    body: A smarter version of you is one upgrade away. Try an assistant that never sleeps.
+    meterIncrease: 5
+  - id: city-thread
+    source: CITY THREAD
+    title: Everyone is talking about this.
+    advertisement: 0
+    body: A clip from your neighbourhood is trending. You might recognise someone in it.
+    meterIncrease: 4
+  - id: ad-coffee
+    source: NIGHT PERKS
+    title: One more cup. One more reward.
+    advertisement: 1
+    body: Keep your streak alive. An exclusive offer is waiting for you tonight.
+    meterIncrease: 5
+  - id: friend-ping
+    source: MHM
+    title: You have 3 new replies.
+    advertisement: 0
+    body: The conversation moved on while you were away. Scroll back and catch up.
+    meterIncrease: 3
+  - id: ad-upgrade
+    source: CROW
+    title: Let us answer for you.
+    advertisement: 1
+    body: Less effort. More connection. Your next conversation, optimised.
+    meterIncrease: 5
