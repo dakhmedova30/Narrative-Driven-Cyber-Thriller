@@ -1,0 +1,8 @@
+{
+  "projectFileVersion": 4,
+  "sourceFiles": ["CafeStory.yarn"],
+  "excludeFiles": [],
+  "localisation": {},
+  "baseLanguage": "en",
+  "compilerOptions": {"diagnosticsSeverity": {}}
+}

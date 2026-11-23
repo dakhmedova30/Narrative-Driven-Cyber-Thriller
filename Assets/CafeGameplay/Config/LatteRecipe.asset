@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43ff3d3e7ad044d469f76a57e8785922, type: 3}
+  m_Name: LatteRecipe
+  m_EditorClassIdentifier: Assembly-CSharp::CafeGameplay.CoffeeRecipe
+  drinkName: MIDNIGHT LATTE
+  illustration: {fileID: 2800000, guid: ae8246dc364a07c45b0936430c6393b5, type: 3}
+  stepFeedbackSeconds: 0.8
+  steps:
+  - title: GRIND
+    instruction: Tap SPACE or the button when the marker reaches the bright zone.
+    input: 0
+    travelSeconds: 2
+    target: 0.65
+    perfectWindow: 0.06
+    goodWindow: 0.16
+    timeout: 12
+    beatInterval: 1
+    beats: 3
+  - title: EXTRACT
+    instruction: Hold SPACE or the button. Release inside the bright zone.
+    input: 1
+    travelSeconds: 3
+    target: 0.65
+    perfectWindow: 0.06
+    goodWindow: 0.16
+    timeout: 12
+    beatInterval: 1
+    beats: 3
+  - title: POUR
+    instruction: Tap SPACE or the button as each beat reaches the centre line.
+    input: 2
+    travelSeconds: 2
+    target: 0.65
+    perfectWindow: 0.1
+    goodWindow: 0.23
+    timeout: 12
+    beatInterval: 1
+    beats: 3

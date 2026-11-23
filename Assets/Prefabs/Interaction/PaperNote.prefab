@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3171551639743987537
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6507558969942356676}
+  - component: {fileID: 2777064774672694213}
+  - component: {fileID: 6161029256328741649}
+  m_Layer: 0
+  m_Name: PaperNote
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6507558969942356676
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3171551639743987537}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2777064774672694213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3171551639743987537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b376ef90ba2e4ea4d8657dfd3d7dad49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Exploration.Interactable
+  displayName: Paper note
+  category: 02 / ANALOG TRACE
+  description: 'Someone has written on the back of an old receipt:
+
+
+    "The device is yours. The choice is still yours, too."
+
+
+    For a moment, the room feels quiet.
+
+
+    Attention recovered: -10'
+  actionLabel: KEEP NOTE
+  artwork: {fileID: 2800000, guid: 779986609ab18154faab86165d8fbbf0, type: 3}
+  oneShot: 1
+  hideWhenCompleted: 0
+  prerequisite: {fileID: 0}
+  interactionDistance: 0
+  onCompleted:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &6161029256328741649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3171551639743987537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 063abba9784b1fc4a91634d109e190a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Exploration.InteractionMeterEffect
+  amount: -10
