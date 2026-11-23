@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 780b1d01e2ddb7347a6f0707c7aa544e, type: 3}
+  m_Name: MeterTuning
+  m_EditorClassIdentifier: Assembly-CSharp::DopamineMeter.MeterConfig
+  initialValue: 50
+  increaseAfterDeath: 5
+  respawnStartCap: 50
+  growthIntervalSeconds: 20
+  growthPerInterval: 0.5
+  engaged: 40
+  intrusive: 60
+  critical: 80
+  queryCost: 5
+  notificationCost: 3
+  readingRelief: 10
+  conversationRelief: 8

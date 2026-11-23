@@ -1,0 +1,1 @@
+PASS: activation, actions, recovery, thresholds, scene persistence, death lock, restore, reset, dialogue clock freeze, dialogue events and real 20-second growth.
