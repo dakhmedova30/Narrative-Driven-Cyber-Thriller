@@ -1,0 +1,43 @@
+title: CafeStart
+tags: cafe
+---
+<<declare $coffee_perfect = false>>
+<<declare $coffee_result = "Cancelled">>
+<<declare $coffee_perfect_steps = 0>>
+<<cafe_notifications false>>
+<<cafe_arrive>>
+Visitor: I used to come here after every late shift. Before everything moved onto a screen. #line:cafe001
+Visitor: Could you make me a latte? Take your time. I could use a moment of quiet. #line:cafe002
+<<jump CafeBrew>>
+===
+title: CafeBrew
+tags: cafe
+---
+<<cafe_brew>>
+<<if $coffee_perfect>>
+    Visitor: That's exactly how she used to make it. You paid attention to every part. #line:cafe003
+    Visitor: My sister disappeared last winter. The last message she sent was from this street. #line:cafe004
+<<else>>
+    Visitor: Thank you for trying. We don't have to get everything right the first time. #line:cafe005
+    -> Let me make another cup. #line:cafe006
+        <<jump CafeBrew>>
+    -> Let's talk anyway. #line:cafe007
+        Visitor: Fair enough. A little company matters more than the coffee. #line:cafe008
+<<endif>>
+Visitor: Can I ask you something? When did you last sit with someone without checking your phone? #line:cafe009
+-> We can keep the phone quiet. #line:cafe010
+    <<cafe_notifications false>>
+    Visitor: Then stay a while. I'll tell you what happened. #line:cafe011
+-> Show the notification phase. #line:cafe012
+    <<cafe_notifications true>>
+    Visitor: Your phone is lighting up. Go ahead if you need to. I'll wait. #line:cafe013
+    // This is a deliberate demo instruction; replace it with final story text later.
+    System: Tap the phone, view a new message, then close it to return to the conversation. #line:cafe014
+    <<cafe_wait_phone>>
+    Visitor: There you are. For a second it felt like you had left the room. #line:cafe015
+    -> Put the phone away. #line:cafe016
+        <<cafe_notifications false>>
+        Visitor: Thanks. Let's start again. #line:cafe017
+    -> Leave notifications on. #line:cafe018
+        Visitor: I'll try to keep this short. #line:cafe019
+===

@@ -76,3 +76,6 @@ crashlytics-build.properties
 /[Aa]ssets/_Recovery*
 
 ProjectSettings/Packages/dev.yarnspinner/*.ysls.json
+
+# Generated Chapter 0 interaction player and verification captures
+/output/chapter0-interaction/

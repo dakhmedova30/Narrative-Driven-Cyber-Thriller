@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5416603744218198215
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9079012052858960322}
+  - component: {fileID: 1457782038468146242}
+  - component: {fileID: 6244111716425241210}
+  - component: {fileID: 3980719561953348952}
+  m_Layer: 0
+  m_Name: DopamineMeterForGame
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9079012052858960322
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5416603744218198215}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1457782038468146242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5416603744218198215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b1924a08ee775c479341deba4077443, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DopamineMeter.MeterService
+  config: {fileID: 11400000, guid: 4b071dd7483d696408d5d8abd64035bb, type: 2}
+  enableTimedGrowth: 0
+  playerHasControl: 1
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &6244111716425241210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5416603744218198215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d10976ce4e8e8df4ca019041b27aed37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DopamineMeter.MeterView
+  displayFont: {fileID: 11400000, guid: 21f190b15cea12a46be9452bf1efb34b, type: 2}
+  bodyFont: {fileID: 11400000, guid: b9b65a2eba8db6442ae0443025cea849, type: 2}
+  sensorArt: {fileID: 2800000, guid: 7edfc06c9861cb8478ed3aae3933c42c, type: 3}
+  reduceMotion: 0
+  hudOffset: {x: -36, y: -30}
+  service: {fileID: 1457782038468146242}
+--- !u!114 &3980719561953348952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5416603744218198215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f639a576be2a5e94dbce549f48ccb192, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MeterGameBridge
